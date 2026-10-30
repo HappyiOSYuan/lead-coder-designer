@@ -18,7 +18,7 @@ The chart is the author's real iOS setup. Labels such as `scope.py`, `review_dif
 
 | Path | Purpose |
 |---|---|
-| `SKILL.md` | The SOP the lead agent follows (written in Chinese; models follow it fine) |
+| `SKILL.md` | The SOP the lead agent follows (English); Chinese: `SKILL.zh-CN.md` |
 | `config.example.sh` | Role → adapter / model / fallback models |
 | `scripts/run_role.sh` | Run the coder or designer; auto-falls back to the next model when quota runs out; `--probe` health check |
 | `scripts/adapters/` | One small file per CLI: `cursor-agent`, `codex`, `claude`, `agy`, `aider` |
@@ -106,4 +106,4 @@ MIT
   ![三 AI 协作流程](docs/workflow.png)
 
   交互版 https://happyiosyuan.github.io/lead-coder-designer/workflow.html 。图里 `gf_*` 开头的是作者 iOS 项目自己的辅助脚本，仅作示例。
-- 正文 `SKILL.md` 是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。
+- `SKILL.md` 是英文版，`SKILL.zh-CN.md` 是中文版（想让代理读中文，把它改名为 `SKILL.md`）；模板和参考文档目前是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。

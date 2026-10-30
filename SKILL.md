@@ -1,115 +1,117 @@
 ---
 name: lead-coder-designer
-description: 一个主控代理带两个执行代理（编码、设计）协作完成需求的 SOP：设计先出方向、用户拍板再出完整稿，编码按任务书在隔离范围里改，主控审 diff、在真机/模拟器/浏览器上和用户一起验收。模型和 CLI 不锁死，换人只改 config.sh。用户说「让设计/让编码去做」「按 SOP 走」「出方向」「派任务」「验收」，或项目里有 AGENTS.md 分工表时使用。
+description: SOP for one lead agent working with two executor agents (coder and designer) on a request. Design starts with 2–3 directions, the user picks one, then the full set is drawn; the coder works from a written brief inside an isolated scope; the lead reviews the diff and verifies with the user on a device, simulator or browser. Models and CLIs are not locked in — swap them in config.sh. Use when the user says "have the designer / coder do it", "follow the SOP", "give me directions", "dispatch a task", "acceptance check", or when the project has an AGENTS.md role table.
 ---
 
-# 主控 + 编码 + 设计 三角色 SOP
+# Lead + Coder + Designer SOP
 
-本 skill 写给**主控角色**读（通常是你正在用的这个代理）。编码和设计两个角色由外部 CLI 扮演，用 `scripts/run_role.sh` 调起；谁来演、用什么模型，全在 `config.sh` 里。
+This skill is written for the **lead** (usually the agent you are talking to). The coder and designer roles are played by external CLIs launched with `scripts/run_role.sh`; who plays each role and on which model is set in `config.sh`. With only one model, see section 8.
 
-## 1. 角色与边界
+Chinese version: `SKILL.zh-CN.md`. Templates and references are currently in Chinese; models follow them fine.
 
-| 角色 | 做 | 不做 |
+## 1. Roles and boundaries
+
+| Role | Does | Does not |
 |---|---|---|
-| 主控（lead） | 定位代码、写任务书、审 diff、跑检查脚本、看截图验收、和用户沟通、维护进度 | 不直接改业务代码（文档、工具脚本可以改）；不替设计角色出设计方向 |
-| 编码（coder） | 按任务书改代码、编译、自检、写简短报告 | 不做设计决策；不改任务范围外的文件 |
-| 设计（designer） | HTML 设计稿、动效演示、交付说明 handoff.md | 不改工程代码；只写设计目录（默认 `DesignMockups/<任务>/`，建议版本库忽略） |
+| Lead | Locates code, writes briefs, reviews diffs, runs check scripts, verifies screenshots, talks to the user, tracks progress | Edit product code (docs and tooling scripts are fine); invent design directions for the designer |
+| Coder | Edits code per the brief, builds, self-checks, writes a short report | Make design decisions; touch files outside the task scope |
+| Designer | HTML mockups, motion demos, `handoff.md` | Edit product code; write anywhere except the design folder (default `DesignMockups/<task>/`, ideally ignored by version control) |
 
-原则：**用户拍板，主控把关，执行角色只执行。** 主控的价值在于定位准、任务书清楚、审得严，而不是自己动手。
+Principle: **the user decides, the lead gatekeeps, executors execute.** The lead adds value by locating precisely, writing clear briefs and reviewing strictly — not by doing the work itself.
 
-## 2. 首次接入一个项目
+## 2. First-time setup in a project
 
-1. 复制配置：`cp config.example.sh <项目>/.sop/config.sh`，按注释填编码/设计用的 CLI 适配器和模型。可选适配器见 `scripts/adapters/`；没有的照 `scripts/adapters/README.md` 加一个。
-2. 探活：`scripts/run_role.sh --probe coder` 和 `--probe designer`，两个都回 `OK` 才算接好。
-3. 在项目根建 `AGENTS.md`（所有代理都会读）：分工表 + 项目规则索引 + 每个任务的收尾清单。模板见 `examples/ios-uikit-swiftui/AGENTS.excerpt.md`。项目规则只在一处写正文，AGENTS.md 只做索引。
-4. 选定任务隔离方式：git 用分支/worktree，svn 用 changelist，`scripts/scope.py` 两种都支持。
+1. Copy the config: `cp config.example.sh <project>/.sop/config.sh` and fill in the coder/designer adapter and model. Adapters live in `scripts/adapters/`; to add one, follow `scripts/adapters/README.md`.
+2. Health check: `scripts/run_role.sh --probe coder` and `--probe designer`. Both must answer `OK`.
+3. Create `AGENTS.md` at the project root (every agent reads it): role table + project rule index + per-task wrap-up checklist. Template: `examples/ios-uikit-swiftui/AGENTS.excerpt.md`. Project rules are written in one place only; AGENTS.md only indexes them.
+4. Pick a task-isolation method: git branch/worktree or svn changelist. `scripts/scope.py` supports both.
 
-## 3. 主流程
+## 3. Main flow
 
 ```
-需求 → ①摸底 → ②设计（可选）→ ③方向门 → ④完整稿 → ⑤任务书 → ⑥编码 → ⑦审查 → ⑧验收 → ⑨收尾
+request → ① locate → ② design (optional) → ③ direction gate → ④ full set → ⑤ brief → ⑥ code → ⑦ review → ⑧ acceptance → ⑨ wrap-up
 ```
 
-① **摸底**：主控先用脚本定位（引用、调用点、旧版本实现），产出「改哪几个文件、哪几行、参照哪个现成实现」。大范围搜索交给脚本汇总输出，别让模型逐个读文件（见 `references/token-saving.md`）。
+① **Locate**: use scripts first (references, call sites, the old implementation) and produce "which files, which lines, which existing implementation to copy". Wide searches go to a script with summarized output, not to a model reading files one by one (see `references/token-saving.md`).
 
-② **设计**（只在有界面改动时）：主控写设计任务书（`templates/design-brief.md`）：用户原话、必读文件、硬约束、交付物。**主控不写设计点子**，怎么设计由设计角色判断并在 handoff 里说理由。设计角色若是无头模式不能跑命令，主控要提前把它要用的素材（图标、截图、旧页面文案）导出到设计目录。
+② **Design** (only when the UI changes): write a design brief (`templates/design-brief.md`) with the user's own words, files to read, hard constraints and deliverables. **The lead does not write design ideas**; the designer decides and explains its reasoning in the handoff. If the designer runs headless and cannot run commands, the lead exports what it needs (icons, screenshots, the old page's text) into the design folder beforehand.
 
-③ **方向门**（新视觉 / 大改版 / 「优化设计」都要走）：第一轮只出 2–3 个有真实差异的方向，每个约 3 屏缩略稿 + 2–3 句取舍说明（`templates/directions.md`）。摆出来就**停**，等用户选。用户选定后，主控把用户原话写进 `direction-approved.md`（`templates/direction-approved.md`）。只改细节的修订（rev）不走方向门。详见 `references/design-gate.md`。
+③ **Direction gate** (new visuals, major redesigns, any "improve the design" request): the first round delivers only 2–3 directions that genuinely differ, each with about 3 thumbnail screens and 2–3 sentences on trade-offs (`templates/directions.md`). Present them and **stop** until the user picks. Then record the user's exact words in `direction-approved.md` (`templates/direction-approved.md`). Small revisions (rev) skip the gate. Details: `references/design-gate.md`.
 
-④ **完整稿**：按选定方向出全部画板 + handoff.md。交稿后主控跑 `scripts/design_lint.py <设计目录> [--base 原稿] [--source 旧代码]`，error 必须为 0；然后截**一张**关键画板图给用户看。
+④ **Full set**: all artboards for the chosen direction plus `handoff.md`. After delivery, run `scripts/design_lint.py <design dir> [--base <previous mockup>] [--source <old code>]`; errors must be 0. Then show the user **one** screenshot of the key artboards.
 
-⑤ **任务书**（`templates/brief.md`）：目标、范围（精确到文件和行号）、照搬哪个现成实现、要点、不要做什么、收尾检查命令。好任务书的标准：编码角色不需要再探索项目就能动手。写法见第 5 节。
+⑤ **Brief** (`templates/brief.md`): goal, scope (down to files and line numbers), which existing implementation to copy, key points, what not to do, wrap-up commands. A good brief lets the coder start without exploring the project. See section 5.
 
-⑥ **编码**：`scope.py start <任务>` → `run_role.sh coder -f brief.md` → `scope.py end <任务>`。用主控自己的「后台任务」功能启动（终端可见、完成会通知），**不要**用 `( cmd & )` 或 nohup 脱离启动。串行任务排队，不要两个编码任务同时改同一工作区。
+⑥ **Code**: `scope.py start <task>` → `run_role.sh coder -f brief.md` → `scope.py end <task>`. Launch it with the lead agent's own background-task feature (visible in the terminal, notifies on completion) — **never** detach it with `( cmd & )` or nohup. Queue tasks serially; never run two coding tasks in the same working copy at once.
 
-⑦ **审查**：先跑 `scripts/review_diff.py [路径]`，再只读被标记的行和关键逻辑（`references/review-checklist.md`）。重点：内容有没有丢（对照**最初**的旧版本，不是中间版本）、有没有越界改动、加载态/空态/错误态、新文件有没有加进版本库和构建。
+⑦ **Review**: run `scripts/review_diff.py [paths]` first, then read only the flagged lines and the key logic (`references/review-checklist.md`). Focus on: lost content (compare against the **original** version, not an intermediate one), out-of-scope edits, loading/empty/error states, and whether new files were added to version control and the build.
 
-⑧ **验收**（`references/runtime-verify.md`）：主控说清要打开哪个页面，用户操作到位后说「打开了」，主控截一张图对照设计稿逐条说结论。用户指出的问题，主控先查根因再派修正任务。
+⑧ **Acceptance** (`references/runtime-verify.md`): tell the user exactly which page to open; when they reply "opened", take one screenshot, compare it with the design point by point and state the verdict. For anything the user reports, find the root cause before dispatching a fix.
 
-⑨ **收尾**：列出改动文件（新增/修改/删除）和所属 changelist/分支，用了哪些规则，编译结果，未完成项。**提交由用户做**，主控不提交。
+⑨ **Wrap-up**: list the changed files (added/modified/deleted) and their changelist/branch, the rules used, the build result and anything left undone. **The user commits**; the lead never does.
 
-## 4. 什么时候问用户、什么时候直接做
+## 4. When to ask the user and when to just do it
 
-- 必须问：设计方向、范围变化、删除或不可逆操作、两个合理方案代价差很多时。
-- 直接做（并在汇报里说一句）：有惯例可循的选择、可以从代码里查到的事实、修订稿里的小修正。
-- 一次只问真正卡住的那一个问题，并给出推荐项。
+- Must ask: design direction, scope changes, deletions or other irreversible actions, and choices between reasonable options whose costs differ a lot.
+- Just do it (and mention it in the report): choices with an established convention, facts you can look up in the code, small fixes inside a revision.
+- Ask only the one question that actually blocks you, and give a recommended option.
 
-## 5. 任务书写法要点
+## 5. Writing a brief
 
-- **定位先于派发**：写明 `文件:行号` 和要改的符号。模糊的任务会让编码角色去探索整个项目，又慢又贵。
-- **给样板**：「照搬 `X.swift` L52–125 的写法」比描述十行要求更准。
-- **内容对齐**：重写/翻新时，要求对照最初版本的显示文案逐条核对，不得增删。
-- **只点 1–3 条相关规则**，不要把整套规则清单塞进去。
-- **小改动不编译**（用户或主控编译）；新增文件或大改动必须编译，并用汇总脚本只输出错误摘要。
-- **收尾命令写死**：检查脚本、error 必须为 0、报告格式（≤10 行 + 改动文件表 + 与设计稿差异）。
+- **Locate before dispatching**: give `file:line` and the symbol to change. Vague tasks send the coder exploring the whole project, which is slow and expensive.
+- **Give a model to copy**: "follow `X.swift` L52–125" is more precise than ten lines of requirements.
+- **Content parity**: for rewrites and redesigns, require a line-by-line check of displayed text against the original version — nothing added, nothing dropped.
+- **Name only 1–3 relevant rules**; don't paste the whole rulebook.
+- **Small changes skip the build** (the user or lead builds); new files or large changes must build, using a summary script that prints only errors.
+- **Spell out the wrap-up commands**: check scripts, errors must be 0, report format (≤10 lines + table of changed files + differences from the design).
 
-## 6. 执行纪律
+## 6. Working discipline
 
-- 每次派发后告诉用户预计要多久。
-- 读日志只读结尾（报告段），不读完整日志。
-- 截图只截一张覆盖关键区域的图。
-- 汇报用用户的语言，先说结论，再说要用户做什么。
-- 长会话里，一个需求做完建议开新会话。
-- 踩过的坑见 `references/pitfalls.md`，派发前过一眼。
+- After every dispatch, tell the user how long it will take.
+- Read only the end of a log (the report), never the full log.
+- Take one screenshot that covers the key area.
+- Report in the user's language: conclusion first, then what the user needs to do.
+- In long sessions, suggest a new session after each finished request.
+- Before dispatching, skim `references/pitfalls.md`.
 
-## 7. 换模型 / 换工具
+## 7. Swapping models or tools
 
-- 换模型：改 `config.sh` 里 `CODER_MODEL` / `DESIGNER_MODEL`（及 `*_FALLBACK`），不用改任何文档。
-- 换 CLI：改 `CODER_ADAPTER` / `DESIGNER_ADAPTER`；新 CLI 照 `scripts/adapters/README.md` 写一个约 30 行的适配器。
-- 主控也可以换：任何能读文件、跑脚本、看图片的代理都能按本文件当主控。
+- Change model: edit `CODER_MODEL` / `DESIGNER_MODEL` (and `*_FALLBACK`) in `config.sh`; no doc changes needed.
+- Change CLI: edit `CODER_ADAPTER` / `DESIGNER_ADAPTER`; for a new CLI write a ~30-line adapter following `scripts/adapters/README.md`.
+- The lead can be swapped too: any agent that can read files, run scripts and look at images can act as lead using this file.
 
-## 8. 只有一个模型时
+## 8. With only one model
 
-三个角色是**分工**，不要求三个不同的模型。两种用法：
+The three roles are a **division of labour**, not three different models.
 
-**A. 同一个模型，分开会话（推荐）**：config 里编码、设计都填同一个 CLI 和模型（例如都用 `claude`，或都用 `codex`）。`run_role.sh` 每次都起一个全新会话，执行角色只看到任务书，看不到主控的上下文。好处是保留了「写的人和审的人不是同一段上下文」，审查仍然有效；任务书写得不清楚也会立刻暴露。
+**A. Same model, separate sessions (recommended)**: set coder and designer in config to the same CLI and model (e.g. both `claude` or both `codex`). Each `run_role.sh` call starts a fresh session that sees only the brief, never the lead's context. The author and the reviewer stay in separate contexts, so the review still means something, and an unclear brief shows up immediately.
 
-**A2. 同一个模型，用子代理（不需要 CLI）**：主控所在的代理如果能起子代理（如 Claude Code 的 Agent 工具、Cursor 的后台代理），就把任务书交给子代理执行，不用 `run_role.sh` 和 `config.sh`。子代理从干净的上下文开始、只看到任务书，效果等同 A：写的人和审的人上下文分开。要求：只把任务书交给它（不要「继承主控上下文」的分叉模式）；它结束后主控照常跑 `scope.py`、`review_diff.py` 审查。
+**A2. Same model via sub-agents (no CLI needed)**: if the lead's agent can spawn sub-agents (e.g. Claude Code's Agent tool, Cursor background agents), hand the brief to a sub-agent instead of `run_role.sh` — no `config.sh` needed. The sub-agent starts with a clean context and sees only the brief, giving the same separation as A. Requirements: pass only the brief (not a fork that inherits the lead's context); when it finishes, the lead runs `scope.py` and `review_diff.py` as usual.
 
-**B. 单会话自己演三个角色（不需要 CLI）**：不用 `run_role.sh`、也不用填 `config.sh`。主控按顺序自己做，但关卡一个不少：
-1. 设计阶段只写 `DesignMockups/` 里的文件，出完方向**停下来等用户选**。
-2. 编码前先把任务书写出来（`templates/brief.md`），再严格按任务书改；范围外的问题记下来不改。
-3. 改完先跑 `review_diff.py` 和 `design_lint.py`，按 `references/review-checklist.md` 逐条自审，再交给用户验收。
-4. 换角色时明确说一句「现在以编码角色执行任务书 X」，便于用户看懂进度。
+**B. One session plays all three roles (no CLI needed)**: no `run_role.sh`, no `config.sh`. The lead does everything in order but keeps every gate:
+1. During design, write only files in `DesignMockups/`; after presenting directions, **stop and wait for the user to pick**.
+2. Before coding, write the brief (`templates/brief.md`), then follow it strictly; note out-of-scope problems instead of fixing them.
+3. After coding, run `review_diff.py` and `design_lint.py`, self-review against `references/review-checklist.md`, then hand over for acceptance.
+4. When switching roles, say so explicitly ("now acting as coder on brief X") so the user can follow.
 
-代价：B 模式下审查是自己审自己，容易放过自己的错；脚本检查和用户验收这两道关更不能省。
+Cost: in mode B the reviewer is the author and is likely to miss its own mistakes, so the script checks and the user's acceptance matter even more.
 
-**运行环境决定能用到什么程度**：
-| 主控在哪里跑 | A2 / B 模式下 |
+**What you get depends on where the lead runs**:
+| Lead runs in | In A2 / B mode |
 |---|---|
-| 能读写文件、能跑命令的编码代理（Claude Code、Cursor、Codex 等） | 完整可用：`scope.py`、`review_diff.py`、`design_lint.py` 只依赖 Python 和 git/svn |
-| 只有网页聊天，没有文件权限 | 只能用流程（方向门、任务书模板、审查清单），脚本跑不了，检查靠人工逐条对照 |
+| A coding agent that can read/write files and run commands (Claude Code, Cursor, Codex …) | Everything works: `scope.py`, `review_diff.py` and `design_lint.py` need only Python and git/svn |
+| Web chat with no file access | Process only (direction gate, brief template, review checklist); scripts can't run, checks are done by hand |
 
-## 文件索引
+## File index
 
-| 路径 | 用途 |
+| Path | Purpose |
 |---|---|
-| `config.example.sh` | 角色 → 适配器 / 模型 / 备用模型 / 目录 |
-| `scripts/run_role.sh` | 统一调起编码/设计角色；额度用完自动换备用模型；`--probe` 探活 |
-| `scripts/adapters/*.sh` | 各 CLI 的调用方式和额度报错识别 |
-| `scripts/scope.py` | 任务开始/结束快照，把本任务改动归到 changelist 或列出（git） |
-| `scripts/review_diff.py` | diff 预审：改动统计、未入库新文件、调试残留、越界文件、可挂项目规则 |
-| `scripts/design_lint.py` | 设计稿自检：反模板装饰、外链资源、暗色、ease-in、文案对齐 |
-| `templates/` | 任务书、设计任务书、方向、方向确认、报告 |
-| `references/` | 方向门、审查清单、运行验收、省 token、踩坑 |
-| `examples/ios-uikit-swiftui/` | 一个真实 iOS 项目的接入示例 |
+| `config.example.sh` | Role → adapter / model / fallback models / folders |
+| `scripts/run_role.sh` | Launch the coder or designer; auto-falls back to the next model when quota runs out; `--probe` health check |
+| `scripts/adapters/*.sh` | How to call each CLI and how to recognise its quota errors |
+| `scripts/scope.py` | Snapshot before/after a task; put this task's changes on a changelist (svn) or list them (git) |
+| `scripts/review_diff.py` | Diff pre-review: change counts, untracked new files, debug leftovers, out-of-scope files, pluggable project rules |
+| `scripts/design_lint.py` | Mockup self-check: anti-template decoration, external assets, dark mode, ease-in, text parity |
+| `templates/` | Coder brief, design brief, directions, direction approval, report |
+| `references/` | Direction gate, review checklist, runtime verification, token saving, pitfalls |
+| `examples/ios-uikit-swiftui/` | Setup example from a real iOS project |
