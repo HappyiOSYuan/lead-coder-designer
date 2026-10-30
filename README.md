@@ -8,9 +8,9 @@ Which CLI and model plays each role lives in one config file, so you can swap Cu
 
 ## Workflow chart
 
-![Lead × Designer × Coder workflow](docs/workflow.png)
+![Lead × Designer × Coder workflow](docs/workflow-en.png)
 
-Interactive version (toggle tool labels): https://happyiosyuan.github.io/lead-coder-designer/workflow.html
+Interactive version (toggle tool labels): [English](https://happyiosyuan.github.io/lead-coder-designer/workflow-en.html) · [中文](https://happyiosyuan.github.io/lead-coder-designer/workflow.html)
 
 The chart is the author's real iOS setup. Labels such as `scope.py`, `review_diff.py`, `design_lint.py` and `run_role.sh` are in this repo; the remaining `gf_*` labels are that project's own helper scripts, shown as examples of what to build for your project.
 
@@ -101,5 +101,9 @@ MIT
   - 单个会话里主控按顺序扮演三个角色，**不需要 CLI 和 config.sh**，但方向门、任务书、脚本检查、用户验收一道都不能省。
   - 在能读写文件、跑命令的编码代理里，脚本照常可用；只有网页聊天时只能用流程和清单，检查靠人工。
 - 安装：把整个目录放到主控代理的 skills 目录（见上面的表），复制 `config.example.sh` 到项目的 `.sop/config.sh` 填好，`run_role.sh --probe` 探活，然后在项目根建 `AGENTS.md`。
-- 流程图：见上方 [Workflow chart](#workflow-chart)，或打开交互版 https://happyiosyuan.github.io/lead-coder-designer/workflow.html 。图里 `gf_*` 开头的是作者 iOS 项目自己的辅助脚本，仅作示例。
+- 流程图（中文版）：
+
+  ![三 AI 协作流程](docs/workflow.png)
+
+  交互版 https://happyiosyuan.github.io/lead-coder-designer/workflow.html 。图里 `gf_*` 开头的是作者 iOS 项目自己的辅助脚本，仅作示例。
 - 正文 `SKILL.md` 是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。
