@@ -1,0 +1,4 @@
+__pycache__/
+config.sh
+!examples/**/config.sh
+.sop/

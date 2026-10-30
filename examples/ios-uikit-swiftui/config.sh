@@ -1,0 +1,10 @@
+CODER_ADAPTER="cursor-agent"
+CODER_MODEL=""                              # Cursor 默认（auto）
+CODER_FALLBACK="claude-opus-5-5-medium"     # 额度用完时
+DESIGNER_ADAPTER="agy"
+DESIGNER_MODEL="gemini-4-argon-high"
+DESIGNER_FALLBACK="gemini-3.8-flash-high"
+DESIGN_DIR="DesignMockups"
+SOP_HOME="${SOP_HOME:-${HOME}/Library/Caches/myapp_sop}"
+DESIGNER_PREAMBLE="你是 AGENTS.md 里的设计角色：只做设计。只写当前目录；不改工程代码，不运行任何 shell 命令（无头模式会拒绝，导致任务失败）。"
+CODER_PREAMBLE="你是 AGENTS.md 里的编码角色：先读项目根 AGENTS.md，按任务书改代码，只改任务范围内的文件，按收尾清单自检后用简短报告结束。不要 svn commit。"
