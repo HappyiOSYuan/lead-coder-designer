@@ -29,14 +29,14 @@ Principle: **the user decides, the lead gatekeeps, executors execute.** The lead
 ## 3. Main flow
 
 ```
-request → ① locate → ② design (optional) → ③ direction gate → ④ full set → ⑤ brief → ⑥ code → ⑦ review → ⑧ acceptance → ⑨ wrap-up
+request → ① locate → ② design (optional) → ③ direction gate → ④ full set → ⑤ brief → ⑥ code → ⑦ review → ⑧ acceptance → ⑨ wrap-up → (⑩ module doc)
 ```
 
 ① **Locate**: use scripts first (references, call sites, the old implementation) and produce "which files, which lines, which existing implementation to copy". Wide searches go to a script with summarized output, not to a model reading files one by one (see `references/token-saving.md`).
 
 ② **Design** (only when the UI changes): write a design brief (`templates/design-brief.md`) with the user's own words, files to read, hard constraints and deliverables. **The lead does not write design ideas**; the designer decides and explains its reasoning in the handoff. If the designer runs headless and cannot run commands, the lead exports what it needs (icons, screenshots, the old page's text) into the design folder beforehand.
 
-③ **Direction gate** (new visuals, major redesigns, any "improve the design" request): the first round delivers only 2–3 directions that genuinely differ, each with about 3 thumbnail screens and 2–3 sentences on trade-offs (`templates/directions.md`). Present them and **stop** until the user picks. Then record the user's exact words in `direction-approved.md` (`templates/direction-approved.md`). Small revisions (rev) skip the gate. Details: `references/design-gate.md`.
+③ **Direction gate** (new visuals, major redesigns, any "improve the design" request): the designer first writes the **design thinking** at the top of `directions.md` (restate the need, the four form questions, one direction card per direction, an overreach check), then draws thumbnails. The first round delivers only 2–3 directions that genuinely differ, each with about 3 thumbnail screens and 2–3 sentences on trade-offs (`templates/directions.md`). Present them and **stop** until the user picks. Then record the user's exact words in `direction-approved.md` (`templates/direction-approved.md`). Small revisions (rev) skip the gate. When redesigning a page that is **already shipped**, keep its skeleton and information order; directions differ only in visual hierarchy. Details: `references/design-gate.md`.
 
 ④ **Full set**: all artboards for the chosen direction plus `handoff.md`. After delivery, run `scripts/design_lint.py <design dir> [--base <previous mockup>] [--source <old code>]`; errors must be 0. Then show the user **one** screenshot of the key artboards.
 
@@ -49,6 +49,8 @@ request → ① locate → ② design (optional) → ③ direction gate → ④ 
 ⑧ **Acceptance** (`references/runtime-verify.md`): tell the user exactly which page to open; when they reply "opened", take one screenshot, compare it with the design point by point and state the verdict. For anything the user reports, find the root cause before dispatching a fix.
 
 ⑨ **Wrap-up**: list the changed files (added/modified/deleted) and their changelist/branch, the rules used, the build result and anything left undone. **The user commits**; the lead never does.
+
+⑩ **Module doc** (only when the user names a module): after the whole module is accepted, add a PRD-style summary (APIs, business rules, flows, known issues). The lead creates the skeleton, the coder fills it from code only with `file:line` citations, the lead spot-checks. Details: `references/module-doc.md`.
 
 ## 4. When to ask the user and when to just do it
 
@@ -112,6 +114,6 @@ Cost: in mode B the reviewer is the author and is likely to miss its own mistake
 | `scripts/scope.py` | Snapshot before/after a task; put this task's changes on a changelist (svn) or list them (git) |
 | `scripts/review_diff.py` | Diff pre-review: change counts, untracked new files, debug leftovers, out-of-scope files, pluggable project rules |
 | `scripts/design_lint.py` | Mockup self-check: anti-template decoration, external assets, dark mode, ease-in, text parity |
-| `templates/` | Coder brief, design brief, directions, direction approval, report |
-| `references/` | Direction gate, review checklist, runtime verification, token saving, pitfalls |
+| `templates/` | Coder brief, design brief, directions (with design thinking), direction approval, report, module doc |
+| `references/` | Direction gate, review checklist, runtime verification, token saving, pitfalls, module doc |
 | `examples/ios-uikit-swiftui/` | Setup example from a real iOS project |

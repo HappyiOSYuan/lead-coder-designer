@@ -18,7 +18,7 @@ DESIGN_DIR="DesignMockups"          # 设计稿根目录（相对项目根），
 SOP_HOME="${SOP_HOME:-${HOME}/.cache/lead-coder-designer}"   # 任务书、日志、快照放这里，不进工程目录
 
 # ---- 交给设计角色的固定前言（每次自动加在任务书前面）----
-DESIGNER_PREAMBLE="你是 AGENTS.md 里的设计角色：只做设计。只写当前目录；不改工程代码，不运行任何 shell 命令。"
+DESIGNER_PREAMBLE="重要：只用读文件 / 写文件 / 列目录工具，绝对不要调用任何 shell 命令（包括 ls、cat、find、grep），否则会被拒绝导致任务失败。你是 AGENTS.md 里的设计角色：只做设计。只读写当前目录（及附加目录）里的文件；不改工程代码。"
 
 # ---- 交给编码角色的固定前言 ----
 CODER_PREAMBLE="你是 AGENTS.md 里的编码角色：先读项目根 AGENTS.md，按任务书改代码，只改任务范围内的文件，按收尾清单自检后用简短报告结束。不要提交版本库。"

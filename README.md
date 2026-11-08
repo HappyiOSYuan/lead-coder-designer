@@ -25,8 +25,8 @@ The chart is the author's real iOS setup. Labels such as `scope.py`, `review_dif
 | `scripts/scope.py` | Snapshot before/after a task and collect only *this* task's changes (git file list or svn changelist) |
 | `scripts/review_diff.py` | Diff pre-review: changed files, untracked files, out-of-scope files, debug leftovers, pluggable project rules |
 | `scripts/design_lint.py` | Mockup lint: anti-template decoration, external assets, ease-in, content parity vs. old mockup / old source strings |
-| `templates/` | Coder brief, design brief, directions, direction approval, report |
-| `references/` | Design gate, review checklist, runtime verification, token saving, pitfalls |
+| `templates/` | Coder brief, design brief, directions (with design thinking), direction approval, report, module doc |
+| `references/` | Design gate, review checklist, runtime verification, token saving, pitfalls, module doc |
 | `examples/ios-uikit-swiftui/` | A real (redacted) iOS project setup |
 
 ## Requirements
@@ -61,6 +61,7 @@ Then create an `AGENTS.md` at your project root (roles, rule index, per-task che
 ```
 request → locate → design (optional) → direction gate (user picks) → full mockup
         → coder brief → coder (isolated scope) → lead review → on-device acceptance → wrap-up
+        → (module doc, when the user names a module)
 ```
 
 The user commits; the lead never does.
