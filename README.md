@@ -90,6 +90,28 @@ Without a CLI, what you get depends on where the lead runs:
 
 Write `scripts/adapters/<name>.sh` with `ADAPTER_QUOTA_RE` and an `adapter_run <model> <workdir> <extra_dir> <prompt>` function (~20 lines; see `scripts/adapters/README.md`), set `CODER_ADAPTER=<name>`, run `--probe`.
 
+## Changelog
+
+### 2026-11-23
+- **Design review rubric (`references/design-review.md`)**: 6-dimension 1–10 weighted scoring (dim 0 concept veto caps total at 6.0), content-parity hard gate, and "report violations only, no design fixes from lead" boundary.
+- **Worst-case UI stress test (`references/ui-stress-test.md`)**: realistic extreme-data stress test checklist (long names, `<null>`, 0/1/full-page+1, large/negative amounts, long filenames, bad image aspect ratios) before acceptance.
+- **Persistent memory, transcript search & lead handover (`references/memory-and-handover.md`)**:
+  - Single-source `.agents/MEMORY.md` (≤150 lines, `[tag]` bullets, wrap-up retro) + `scripts/memory_check.py` (lint + `--match` injection into briefs + auto-run in `review_diff.py`).
+  - `scripts/session_search.py` for no-LLM lookup of past user rulings.
+  - `scripts/takeover_lead.sh` + shared `$SOP_HOME/leader-handoff.md` for smooth backup-lead handover when quota runs out; `SOP_FORCE_FALLBACK=1` in `run_role.sh`.
+- **First-principles workflow upgrades**:
+  - **Fast / Standard / Full routing lanes** at the entry of `SKILL.md` to match process weight to risk.
+  - **Lightweight dynamic logic self-check** before asking the user to build (data parsing, param assembly, formatting, pagination boundaries) + error-branch parity checks.
+  - **Rule & skill GC (`memory_check.py --audit-rules`)** to flag dead paths, bloated (>300 lines) and stale rule files.
+  - **2-round circuit breaker**: stop after 2 consecutive rejected revs or bug-fix rounds to re-investigate root cause instead of blind retries.
+- **Workflow charts (`docs/workflow*.html` & `.png`)**: added all new gates/tools, color-coded Commit (amber) and Module Docs (indigo) stages, removed concrete model names, and annotated `≤2 rounds stop` on return edges.
+
+### 2026-11-08
+- Added design thinking (restate need, 4 form questions, direction cards, overreach check), keep-skeleton rule for redesigning shipped pages, module doc workflow, and new pitfalls.
+
+### 2026-10-31
+- Initial release: model-agnostic lead/coder/designer SOP, CLI adapters, `scope.py` / `review_diff.py` / `design_lint.py`, single-model modes, and bilingual interactive workflow charts.
+
 ## License
 
 MIT
@@ -114,3 +136,25 @@ MIT
 
   交互版 https://happyiosyuan.github.io/lead-coder-designer/workflow.html 。图里 `gf_*` 开头的是作者 iOS 项目自己的辅助脚本，仅作示例。
 - `SKILL.md` 是英文版，`SKILL.zh-CN.md` 是中文版（想让代理读中文，把它改名为 `SKILL.md`）；模板和参考文档目前是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。
+
+### 更新记录
+
+#### 2026-11-23
+- **界面设计 6 维打分表（`references/design-review.md`）**：方向稿审设计思路与 0/1 维，完整稿 / rev 按 6 维 1–10 分加权打分（0 维立意 ≤5 封顶 6 分）、内容一致性一票打回，主控只指标准与数值不出设计方案。
+- **最坏数据 UI 压测（`references/ui-stress-test.md`）**：验收前用真实极限数据压测列表 / 详情 / 表单（超长名、`<null>`、0/1/满页+1、大额/负数、长文件名、异常图片比例等），默认只读出报告，假数据绝不交付。
+- **持久记忆、历史检索与主控热接管（`references/memory-and-handover.md`）**：
+  - 唯一项目记忆 `.agents/MEMORY.md`（≤150 行、带 `[标签]`、收尾复盘闭环）+ `scripts/memory_check.py`（体检、`--match` 注入任务书、`review_diff.py` 收尾自动运行）。
+  - `scripts/session_search.py` 无 LLM 检索历史会话原话，核对过往用户拍板口径。
+  - `scripts/takeover_lead.sh` + 共用 `leader-handoff.md` 支持主控额度耗尽时平滑接管；`run_role.sh` 新增 `SOP_FORCE_FALLBACK=1`。
+- **第一性原理流程升级**：
+  - **轻 / 中 / 重三级分流**：小修走快车道、重构走标准道、大改版走重装道。
+  - **轻量级动态逻辑自检**：涉及数据解析、参数拼接、格式化、分页边界时，喊用户编译前先跑单测或命令行断言，并逐请求核对失败分支。
+  - **规则与技能定期清理（`memory_check.py --audit-rules`）**：扫描失效路径、超 300 行偏长文件与久未更新规则，防止 SOP 熵增。
+  - **连续 2 轮熔断机制**：同一阶段连续 2 轮被打回立即停手重查根因、必要时回滚或升级问用户，禁止盲派第 3 轮。
+- **中英文流程图更新（`docs/workflow*.html/.png`）**：同步全部新工具与关卡，步骤 7（提交收尾）改暖琥珀色、步骤 8（模块文档）改靛紫色，去除具体模型名，并在退回红线标注「`≤2 轮熔断`」。
+
+#### 2026-11-08
+- 新增设计思路（重述需求、form 四问、方向卡、过头检查）、已上线页面改版保留骨架约定、模块文档流程及新踩坑条目。
+
+#### 2026-10-31
+- 首个版本发布：模型不锁死的三角色 SOP、CLI 适配器、`scope.py` / `review_diff.py` / `design_lint.py`、单模型用法与中英文交互流程图。
