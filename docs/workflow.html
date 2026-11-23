@@ -191,14 +191,14 @@
       <text class="role-title" x="408" y="60">大脑AI</text>
       <text class="role-sub" x="408" y="82">定位，写 brief 和任务书，审稿审 diff</text>
       <text class="role-sub" x="408" y="102">不改工程代码，不出设计点子</text>
-      <text class="role-sub" x="408" y="122">额度不足用 takeover_lead.sh 热接管</text>
+      <text class="role-sub" x="408" y="122">额度不足热接管备选大脑AI模型</text>
     </g>
     <g aria-label="设计AI 泳道">
       <rect class="lane" x="748" y="24" width="342" height="2230" rx="15"/>
       <path class="lane-head" d="M763 24h312a15 15 0 0 1 15 15v111H748V39a15 15 0 0 1 15-15z"/>
       <rect class="lane-accent" x="748" y="24" width="342" height="7" rx="4"/>
       <text class="role-title" x="770" y="62">设计AI</text>
-      <text class="role-sub" x="770" y="86">经 agy 运行，只做设计</text>
+      <text class="role-sub" x="770" y="86">经 run_role.sh 调设计模型，只做设计</text>
       <text class="role-sub" x="770" y="107">HTML 设计稿 + handoff.md</text>
       <text class="role-sub" x="770" y="129">只写 DesignMockups/</text>
     </g>
@@ -254,7 +254,7 @@
       <text class="node-title" x="44" y="26">出 HTML + handoff.md</text>
       <text class="node-body" x="18" y="50">在设计稿目录后台运行，10–70 分钟</text>
       <text class="node-body" x="18" y="68">handoff 写动效曲线、SwiftUI 对照</text>
-      <text class="node-body" x="18" y="86">默认模型 gemini-4-neon-high</text>
+      <text class="node-body" x="18" y="86">使用 config.sh 配置的设计模型</text>
       <text class="node-body" x="18" y="104">方向稿先写设计思路：</text>
       <text class="node-body" x="18" y="122">form 四问、方向卡、过头检查</text>
       <text class="node-body mono" x="18" y="142">DesignMockups/&lt;任务&gt;/</text>
@@ -281,7 +281,7 @@
     <path class="decision" d="M565 666 L630 694 L565 722 L500 694 Z"/>
     <text class="decision-text" x="565" y="694">合规？</text>
     <path class="flow-return" d="M630 694 H1030 V526"/>
-    <g transform="translate(760 682)"><rect class="edge-label-bg" width="124" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不合规，--rev 退回</text></g>
+    <g transform="translate(724 682)"><rect class="edge-label-bg" width="194" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不合规，--rev 退回（≤2 轮熔断）</text></g>
     <path class="flow" d="M500 694 H324"/>
     <g transform="translate(360 683)"><rect class="edge-label-bg" width="102" height="22" rx="11"/><text class="edge-label" x="11" y="15">合规，交用户看</text></g>
 
@@ -337,8 +337,8 @@
       <rect class="node-code" width="310" height="168" rx="12"/>
       <circle class="badge-code" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">4</text>
       <text class="node-title" x="44" y="26">按任务书改代码</text>
-      <text class="node-body" x="18" y="53">run_role.sh coder 派发，用默认模型</text>
-      <text class="node-body" x="18" y="73">额度用完换 opus-5-5-medium / auto</text>
+      <text class="node-body" x="18" y="53">run_role.sh coder 派发代码模型</text>
+      <text class="node-body" x="18" y="73">额度用完自动切备用代码模型</text>
       <text class="node-body" x="18" y="91">新模块走 gf-new-module-swift</text>
       <text class="node-body" x="18" y="109">默认不编译；解析/参数/分页跑轻量逻辑自检</text>
       <g class="tool-annotation" transform="translate(16 120)">
@@ -367,7 +367,7 @@
     <path class="decision-code" d="M565 1240 L630 1268 L565 1296 L500 1268 Z"/>
     <text class="decision-text" x="565" y="1268">审核通过？</text>
     <path class="flow-return" d="M630 1268 H1300 V1078"/>
-    <g transform="translate(790 1256)"><rect class="edge-label-bg" width="137" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不通过，带问题退回</text></g>
+    <g transform="translate(760 1256)"><rect class="edge-label-bg" width="204" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不通过，带问题退回（≤2 轮熔断）</text></g>
 
     <!-- Step 6: simulator check -->
     <line class="divider" x1="24" y1="1340" x2="1476" y2="1340"/>
@@ -407,7 +407,7 @@
     <path class="decision-code" d="M565 1642 L630 1670 L565 1698 L500 1670 Z"/>
     <text class="decision-text" x="565" y="1670">和定稿一致？</text>
     <path class="flow-return" d="M630 1670 H1293 V1600"/>
-    <g transform="translate(800 1658)"><rect class="edge-label-bg" width="114" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不一致，退回修改</text></g>
+    <g transform="translate(765 1658)"><rect class="edge-label-bg" width="188" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不一致，退回修改（≤2 轮熔断）</text></g>
     <g transform="translate(1138 1500)">
       <rect class="node-code" width="310" height="100" rx="12"/>
       <circle class="badge-code" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">6</text>
@@ -564,7 +564,8 @@
       <text class="shared-copy" x="1022" y="2888">大搜索用脚本出摘要，日志只看末尾</text>
       <text class="shared-copy" x="1022" y="2908">设计和 UI 每次只看一张截图</text>
       <text class="shared-copy" x="1022" y="2928">一个需求一个会话，历史口径用 session_search</text>
-      <text class="shared-copy" x="1022" y="2966">.agents/MEMORY.md 唯一记忆 · leader-handoff.md 主控交接</text>
+      <text class="shared-copy" x="1022" y="2948">连续 2 轮被打回立即熔断，重查根因或升级问用户</text>
+      <text class="shared-copy" x="1022" y="2982">.agents/MEMORY.md 唯一记忆 · leader-handoff.md 主控交接</text>
     </g>
   </svg>
 </main>

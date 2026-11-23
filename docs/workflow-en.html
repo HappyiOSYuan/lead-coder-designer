@@ -190,14 +190,14 @@
       <text class="role-title" x="408" y="60">Lead AI</text>
       <text class="role-sub" x="408" y="82">Locates code, writes briefs, reviews diffs</text>
       <text class="role-sub" x="408" y="102">No project code, no design ideas</text>
-      <text class="role-sub" x="408" y="122">Quota out → takeover_lead.sh handover</text>
+      <text class="role-sub" x="408" y="122">Quota out → backup lead AI model</text>
     </g>
     <g aria-label="Designer AI lane">
       <rect class="lane" x="748" y="24" width="342" height="2230" rx="15"/>
       <path class="lane-head" d="M763 24h312a15 15 0 0 1 15 15v111H748V39a15 15 0 0 1 15-15z"/>
       <rect class="lane-accent" x="748" y="24" width="342" height="7" rx="4"/>
       <text class="role-title" x="770" y="62">Designer AI</text>
-      <text class="role-sub" x="770" y="86">Runs via agy, design only</text>
+      <text class="role-sub" x="770" y="86">Designer model via run_role.sh, design only</text>
       <text class="role-sub" x="770" y="107">HTML mockup + handoff.md</text>
       <text class="role-sub" x="770" y="129">Writes only DesignMockups/</text>
     </g>
@@ -254,7 +254,7 @@
       <text class="node-title" x="44" y="26">Produce HTML + handoff.md</text>
       <text class="node-body" x="18" y="50">Runs in background in mockup dir, 10–70 min</text>
       <text class="node-body" x="18" y="68">handoff lists motion curves, SwiftUI mapping</text>
-      <text class="node-body" x="18" y="86">Default model gemini-4-neon-high</text>
+      <text class="node-body" x="18" y="86">Uses designer model in config.sh</text>
       <text class="node-body" x="18" y="104">Directions start with design thinking:</text>
       <text class="node-body" x="18" y="122">4 form questions, direction cards,</text>
       <text class="node-body" x="18" y="140">overreach check</text>
@@ -282,7 +282,7 @@
     <path class="decision" d="M565 666 L630 694 L565 722 L500 694 Z"/>
     <text class="decision-text" x="565" y="694">Pass?</text>
     <path class="flow-return" d="M630 694 H1030 V526"/>
-    <g transform="translate(760 682)"><rect class="edge-label-bg" width="124" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">Fail, --rev back</text></g>
+    <g transform="translate(722 682)"><rect class="edge-label-bg" width="206" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">Fail, --rev back (≤2 rounds stop)</text></g>
     <path class="flow" d="M500 694 H324"/>
     <g transform="translate(360 683)"><rect class="edge-label-bg" width="102" height="22" rx="11"/><text class="edge-label" x="11" y="15">To user</text></g>
 
@@ -338,8 +338,8 @@
       <rect class="node-code" width="310" height="168" rx="12"/>
       <circle class="badge-code" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">4</text>
       <text class="node-title" x="44" y="26">Code to the brief</text>
-      <text class="node-body" x="18" y="53">run_role.sh coder, default model</text>
-      <text class="node-body" x="18" y="73">Quota out → opus-5-5-medium / auto</text>
+      <text class="node-body" x="18" y="53">run_role.sh coder (coder model)</text>
+      <text class="node-body" x="18" y="73">Quota out → fallback coder model</text>
       <text class="node-body" x="18" y="91">New module: gf-new-module-swift</text>
       <text class="node-body" x="18" y="109">No build by default; logic edits run light self-check</text>
       <g class="tool-annotation" transform="translate(16 120)">
@@ -368,7 +368,7 @@
     <path class="decision-code" d="M565 1240 L630 1268 L565 1296 L500 1268 Z"/>
     <text class="decision-text" x="565" y="1268">Approved?</text>
     <path class="flow-return" d="M630 1268 H1300 V1078"/>
-    <g transform="translate(790 1256)"><rect class="edge-label-bg" width="137" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">No, back with issues</text></g>
+    <g transform="translate(755 1256)"><rect class="edge-label-bg" width="218" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">No, back w/ issues (≤2 rounds stop)</text></g>
 
     <!-- Step 6: simulator check -->
     <line class="divider" x1="24" y1="1340" x2="1476" y2="1340"/>
@@ -408,7 +408,7 @@
     <path class="decision-code" d="M565 1642 L630 1670 L565 1698 L500 1670 Z"/>
     <text class="decision-text" x="565" y="1670">Matches?</text>
     <path class="flow-return" d="M630 1670 H1293 V1600"/>
-    <g transform="translate(800 1658)"><rect class="edge-label-bg" width="114" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">No, send back</text></g>
+    <g transform="translate(765 1658)"><rect class="edge-label-bg" width="194" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">No, send back (≤2 rounds stop)</text></g>
     <g transform="translate(1138 1500)">
       <rect class="node-code" width="310" height="100" rx="12"/>
       <circle class="badge-code" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">6</text>
@@ -565,7 +565,8 @@
       <text class="shared-copy" x="1022" y="2888">Big searches → script summaries; logs: tail only</text>
       <text class="shared-copy" x="1022" y="2908">One screenshot per design/UI check</text>
       <text class="shared-copy" x="1022" y="2928">One session per request; lookup via session_search</text>
-      <text class="shared-copy" x="1022" y="2966">.agents/MEMORY.md single source · leader-handoff.md handover</text>
+      <text class="shared-copy" x="1022" y="2948">Circuit breaker: 2 failed rounds → stop &amp; re-root-cause</text>
+      <text class="shared-copy" x="1022" y="2982">.agents/MEMORY.md single source · leader-handoff.md handover</text>
     </g>
   </svg>
 </main>
