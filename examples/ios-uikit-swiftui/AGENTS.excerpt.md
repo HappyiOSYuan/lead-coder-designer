@@ -5,9 +5,14 @@
 ## 分工
 | 角色 | 负责 | 不做 |
 |---|---|---|
-| 主控 | 定位代码、写任务书、审 diff、编译把关、模拟器截图验收、与用户沟通 | 不直接改工程代码 |
+| 主控 | 定位代码、写任务书、审设计稿与 diff、编译把关、模拟器截图验收、与用户沟通 | 不直接改工程代码；不替设计出点子 |
 | 编码 | 工程代码的修改、编译 | 不做设计决策 |
 | 设计 | HTML 设计稿、动效演示、交付说明（handoff） | 不改工程代码；设计稿只写到 `DesignMockups/`（版本库已忽略） |
+
+### 持久记忆与主控交接
+- **唯一项目记忆**：`.agents/MEMORY.md`（一条一行，开头 `[标签/标签]`，≤150 行）。启动先读；写任务书时用 `memory_check.py --match` 把相关条目抄进任务书；改完跑 `memory_check.py`。
+- **历史口径检索**：`python3 -I <skill>/scripts/session_search.py <关键词> --role user`。
+- **主控接管**：主控额度不足时运行 `<skill>/scripts/takeover_lead.sh`，双方共用 `$SOP_HOME/leader-handoff.md` 交接进度与待确认项。
 
 ## 设计约束
 - 平台风格：Apple HIG，界面能直接用 SwiftUI 实现；基准机型宽 402pt；页面左右边距、列表左缩进 16pt。
@@ -22,8 +27,8 @@
 ### 反模板装饰（画板内禁止）
 全大写英文小标签、中英混排标题、「A · B · C」串词、末尾装饰「→」、假序号、渐变、emoji 图标、卡片左彩条、手画图标、编造统计。
 
-### 交稿自检
-`python3 -I <skill>/scripts/design_lint.py DesignMockups/<目录> [--base <原稿>] [--source <旧代码目录>]`，error 必须为 0。
+### 交稿自检与打分
+`python3 -I <skill>/scripts/design_lint.py DesignMockups/<目录> [--base <原稿>] [--source <旧代码目录>]`，error 必须为 0；完整稿 / rev 再截一张图按 `<skill>/references/design-review.md` 做 6 维打分。
 
 ## 改代码前必读的规则（按任务挑 1–3 条）
 - 总是适用：自检、Swift 语法、OC/Swift 互调、布局约束（SnapKit/Masonry 贴 safeArea）、工程文件安全修改、第三方库补丁
@@ -43,3 +48,4 @@
 4. 跑 `review_diff.py <改动目录>`，error 必须为 0。
 5. 报告列出：改动文件清单、用到的规则、编译结果、未完成或跳过的项及原因。
 6. 不执行 `svn commit`。
+7. 复盘：有踩坑、被用户纠偏或新约定，写回 `.agents/MEMORY.md`（执行角色写在报告里，由主控写入），没有则写「复盘：无」。

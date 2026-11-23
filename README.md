@@ -23,10 +23,13 @@ The chart is the author's real iOS setup. Labels such as `scope.py`, `review_dif
 | `scripts/run_role.sh` | Run the coder or designer; auto-falls back to the next model when quota runs out; `--probe` health check |
 | `scripts/adapters/` | One small file per CLI: `cursor-agent`, `codex`, `claude`, `agy`, `aider` |
 | `scripts/scope.py` | Snapshot before/after a task and collect only *this* task's changes (git file list or svn changelist) |
-| `scripts/review_diff.py` | Diff pre-review: changed files, untracked files, out-of-scope files, debug leftovers, pluggable project rules |
+| `scripts/review_diff.py` | Diff pre-review: changed files, untracked files, out-of-scope files, debug leftovers, pluggable project rules, automatic memory check |
 | `scripts/design_lint.py` | Mockup lint: anti-template decoration, external assets, ease-in, content parity vs. old mockup / old source strings |
+| `scripts/memory_check.py` | Check `.agents/MEMORY.md` (line cap, `[tag]`, near-duplicates, dead paths) and `--match` relevant entries into briefs |
+| `scripts/session_search.py` | Search past local session transcripts without an LLM to verify previous user rulings |
+| `scripts/takeover_lead.sh` | Hand over the lead role to a backup CLI via shared `leader-handoff.md` when quota runs out |
 | `templates/` | Coder brief, design brief, directions (with design thinking), direction approval, report, module doc |
-| `references/` | Design gate, review checklist, runtime verification, token saving, pitfalls, module doc |
+| `references/` | Design gate, 6-dimension design review rubric, review checklist, worst-case UI stress test, runtime verification, memory & lead handover, token saving, pitfalls, module doc |
 | `examples/ios-uikit-swiftui/` | A real (redacted) iOS project setup |
 
 ## Requirements
@@ -58,13 +61,15 @@ Then create an `AGENTS.md` at your project root (roles, rule index, per-task che
 
 ## The flow
 
+Route by risk first (**Fast**: ≤2 files / clear fix → locate, edit, `review_diff`; **Standard**: features / refactors → skip design; **Full**: new visuals / redesigns → full flow below):
+
 ```
-request → locate → design (optional) → direction gate (user picks) → full mockup
-        → coder brief → coder (isolated scope) → lead review → on-device acceptance → wrap-up
-        → (module doc, when the user names a module)
+request → locate → design (Full) → direction gate (user picks) → full mockup
+        → coder brief → coder (isolated scope) → lead review (+ logic self-check)
+        → on-device acceptance → wrap-up & retro → (module doc, on request)
 ```
 
-The user commits; the lead never does.
+The user commits; the lead never does. Periodically prune stale rules/skills with `scripts/memory_check.py --audit-rules`.
 
 ## One model only
 
@@ -95,7 +100,8 @@ MIT
 
 一套**模型不锁死**的多代理协作 SOP：一个主控代理带编码、设计两个执行代理做真实需求。主控定位代码、写任务书、审 diff、上设备验收；编码改代码；设计出 HTML 设计稿；用户选设计方向、做最终验收。
 
-- 谁来演哪个角色、用什么模型，都在 `config.sh` 一个文件里；换模型改一行，换 CLI 加一个约 20 行的适配器。
+- 谁来演哪个角色、用什么模型，都在 `config.sh` 一个文件里；换模型改一行，换 CLI 加一个约 20 行的适配器。主控额度耗尽时也可用 `scripts/takeover_lead.sh` + 共用 `leader-handoff.md` 平滑接管。
+- 内置**轻/中/重三级分流**（小修直走快车道、重构跳过设计、大改版走完整方向门）、设计稿 6 维打分表（`references/design-review.md`）、动态逻辑自检与最坏数据 UI 压测（`references/ui-stress-test.md`），以及 `.agents/MEMORY.md` 唯一项目记忆体检、规则清理审计（`--audit-rules`）与历史会话检索（`scripts/memory_check.py`、`scripts/session_search.py`）。
 - **单个模型也能用**，三种方式：
   - 编码和设计填同一个 CLI/模型，分开会话（推荐）；
   - 主控代理能起子代理时（如 Claude Code 的 Agent 工具），把任务书交给子代理，**不需要 CLI 和 config.sh**，上下文同样是分开的；

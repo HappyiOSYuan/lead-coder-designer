@@ -28,27 +28,36 @@ description: 一个主控代理带两个执行代理（编码、设计）协作�
 
 ## 3. 主流程
 
+### 先分流：按风险选快 / 中 / 重三条车道
+
+| 车道 | 典型场景 | 要走的步骤 |
+|---|---|---|
+| **快车道** | ≤2 个文件、根因已明、无界面结构变化（小修 bug、文案/参数微调） | ①摸底 → 极简 brief（或按项目约定直接小修）→ `review_diff.py` → ⑨收尾 |
+| **标准道** | 功能迭代、接口接入、不改视觉的重构/重写 | ①摸底 → ⑤任务书 → ⑥编码 → ⑦审查（含动态逻辑自检）→ ⑧验收 → ⑨收尾 |
+| **重装道** | 新页面、新视觉、大改版、「优化设计」 | 走完整流程 ① → ⑨（含方向门、6 维打分、最坏数据 UI 压测） |
+
 ```
-需求 → ①摸底 → ②设计（可选）→ ③方向门 → ④完整稿 → ⑤任务书 → ⑥编码 → ⑦审查 → ⑧验收 → ⑨收尾 →（⑩模块文档）
+需求 → [快 / 标准 / 重装] → ①摸底 → ②设计（重装）→ ③方向门 → ④完整稿
+     → ⑤任务书 → ⑥编码 → ⑦审查 → ⑧验收 → ⑨收尾 →（⑩模块文档）
 ```
 
 ① **摸底**：主控先用脚本定位（引用、调用点、旧版本实现），产出「改哪几个文件、哪几行、参照哪个现成实现」。大范围搜索交给脚本汇总输出，别让模型逐个读文件（见 `references/token-saving.md`）。
 
 ② **设计**（只在有界面改动时）：主控写设计任务书（`templates/design-brief.md`）：用户原话、必读文件、硬约束、交付物。**主控不写设计点子**，怎么设计由设计角色判断并在 handoff 里说理由。设计角色若是无头模式不能跑命令，主控要提前把它要用的素材（图标、截图、旧页面文案）导出到设计目录。
 
-③ **方向门**（新视觉 / 大改版 / 「优化设计」都要走）：设计角色先在 `directions.md` 开头写**设计思路**（重述需求、form 四问、每个方向一张方向卡、过头检查），再画缩略稿。第一轮只出 2–3 个有真实差异的方向，每个约 3 屏缩略稿 + 2–3 句取舍说明（`templates/directions.md`）。摆出来就**停**，等用户选。用户选定后，主控把用户原话写进 `direction-approved.md`（`templates/direction-approved.md`）。只改细节的修订（rev）不走方向门。改版**已上线**的页面时保留现有骨架和信息顺序，方向只在视觉层级上做区别。详见 `references/design-gate.md`。
+③ **方向门**（新视觉 / 大改版 / 「优化设计」都要走）：设计角色先在 `directions.md` 开头写**设计思路**（重述需求、form 四问、每个方向一张方向卡、过头检查），再画缩略稿。第一轮只出 2–3 个有真实差异的方向，每个约 3 屏缩略稿 + 2–3 句取舍说明（`templates/directions.md`）。主控按 `references/design-review.md` 审核「设计思路」和第 0、1 维，摆出来就**停**，等用户选。用户选定后，主控把用户原话写进 `direction-approved.md`（`templates/direction-approved.md`）。只改细节的修订（rev）不走方向门。改版**已上线**的页面时保留现有骨架和信息顺序，方向只在视觉层级上做区别。详见 `references/design-gate.md`。
 
-④ **完整稿**：按选定方向出全部画板 + handoff.md。交稿后主控跑 `scripts/design_lint.py <设计目录> [--base 原稿] [--source 旧代码]`，error 必须为 0；然后截**一张**关键画板图给用户看。
+④ **完整稿**：按选定方向出全部画板 + handoff.md。交稿后主控跑 `scripts/design_lint.py <设计目录> [--base 原稿] [--source 旧代码]`，error 必须为 0；截**一张**关键画板图，按 `references/design-review.md` 做 6 维打分（只指违反的标准与数值，不给替代设计方案），不达标打回 rev，达标再交给用户看。
 
-⑤ **任务书**（`templates/brief.md`）：目标、范围（精确到文件和行号）、照搬哪个现成实现、要点、不要做什么、收尾检查命令。好任务书的标准：编码角色不需要再探索项目就能动手。写法见第 5 节。
+⑤ **任务书**（`templates/brief.md`）：目标、范围（精确到文件和行号）、照搬哪个现成实现、要点、相关记忆（用 `scripts/memory_check.py --match` 从 `.agents/MEMORY.md` 摘抄）、不要做什么、收尾检查命令。好任务书的标准：编码角色不需要再探索项目就能动手。写法见第 5 节。
 
 ⑥ **编码**：`scope.py start <任务>` → `run_role.sh coder -f brief.md` → `scope.py end <任务>`。用主控自己的「后台任务」功能启动（终端可见、完成会通知），**不要**用 `( cmd & )` 或 nohup 脱离启动。串行任务排队，不要两个编码任务同时改同一工作区。
 
-⑦ **审查**：先跑 `scripts/review_diff.py [路径]`，再只读被标记的行和关键逻辑（`references/review-checklist.md`）。重点：内容有没有丢（对照**最初**的旧版本，不是中间版本）、有没有越界改动、加载态/空态/错误态、新文件有没有加进版本库和构建。
+⑦ **审查**：先跑 `scripts/review_diff.py [路径]`，再只读被标记的行和关键逻辑（`references/review-checklist.md`）。重点：内容和失败分支有没有丢（对照**最初**的旧版本，不是中间版本）、有没有越界改动、加载态/空态/错误态、新文件有没有加进版本库和构建。涉及数据解析、参数拼接、金额/时间格式或分页边界的改动，先跑轻量单测或命令行逻辑自检，再喊用户编译验收。列表/详情/表单改写验收前，按 `references/ui-stress-test.md` 做最坏数据压测。审出的反复性错误同步反哺到项目规则或 `.agents/MEMORY.md`。
 
 ⑧ **验收**（`references/runtime-verify.md`）：主控说清要打开哪个页面，用户操作到位后说「打开了」，主控截一张图对照设计稿逐条说结论。用户指出的问题，主控先查根因再派修正任务。
 
-⑨ **收尾**：列出改动文件（新增/修改/删除）和所属 changelist/分支，用了哪些规则，编译结果，未完成项。**提交由用户做**，主控不提交。
+⑨ **收尾**：列出改动文件（新增/修改/删除）和所属 changelist/分支，用了哪些规则，编译结果，未完成项。顺手做一次复盘：把本次踩坑、用户纠偏或新约定写回 `.agents/MEMORY.md` 并跑 `scripts/memory_check.py`（`references/memory-and-handover.md`）。**提交由用户做**，主控不提交。
 
 ⑩ **模块文档**（用户点名某个模块时）：模块整体验收后补一份 PRD 式总结（接口、业务逻辑、流程、已知问题）。主控出骨架，编码角色只按代码填写、注明行号，主控抽查。详见 `references/module-doc.md`。
 
@@ -69,18 +78,20 @@ description: 一个主控代理带两个执行代理（编码、设计）协作�
 
 ## 6. 执行纪律
 
-- 每次派发后告诉用户预计要多久。
+- 每次派发后按实测经验告诉用户预计要多久。
 - 读日志只读结尾（报告段），不读完整日志。
 - 截图只截一张覆盖关键区域的图。
 - 汇报用用户的语言，先说结论，再说要用户做什么。
+- 项目记忆只维护唯一来源 `.agents/MEMORY.md`（≤150 行、带 `[标签]`）；查历史口径用 `scripts/session_search.py`，不靠猜；定期用 `scripts/memory_check.py --audit-rules` 清理过时规则与技能防熵增。
 - 长会话里，一个需求做完建议开新会话。
+- **熔断止损**：同一阶段连续 2 轮被打回（连续 2 轮设计 rev 或 2 轮修 bug 不过），禁止直接盲派第 3 轮；必须停下来重查根因、必要时回滚脏改动，或升级让用户拍板。
 - 踩过的坑见 `references/pitfalls.md`，派发前过一眼。
 
 ## 7. 换模型 / 换工具
 
-- 换模型：改 `config.sh` 里 `CODER_MODEL` / `DESIGNER_MODEL`（及 `*_FALLBACK`），不用改任何文档。
+- 换模型：改 `config.sh` 里 `CODER_MODEL` / `DESIGNER_MODEL`（及 `*_FALLBACK`），不用改任何文档。主模型额度用完时可设 `SOP_FORCE_FALLBACK=1` 直接走备用模型。
 - 换 CLI：改 `CODER_ADAPTER` / `DESIGNER_ADAPTER`；新 CLI 照 `scripts/adapters/README.md` 写一个约 30 行的适配器。
-- 主控也可以换：任何能读文件、跑脚本、看图片的代理都能按本文件当主控。
+- 主控也可以换或临时接管：任何能读文件、跑脚本、看图片的代理都能按本文件当主控。原主控额度不足时，用 `scripts/takeover_lead.sh` 启动备选主控，双方共用 `$SOP_HOME/leader-handoff.md` 交接现场（详见 `references/memory-and-handover.md`）。
 
 ## 8. 只有一个模型时
 
@@ -112,8 +123,11 @@ description: 一个主控代理带两个执行代理（编码、设计）协作�
 | `scripts/run_role.sh` | 统一调起编码/设计角色；额度用完自动换备用模型；`--probe` 探活 |
 | `scripts/adapters/*.sh` | 各 CLI 的调用方式和额度报错识别 |
 | `scripts/scope.py` | 任务开始/结束快照，把本任务改动归到 changelist 或列出（git） |
-| `scripts/review_diff.py` | diff 预审：改动统计、未入库新文件、调试残留、越界文件、可挂项目规则 |
+| `scripts/review_diff.py` | diff 预审：改动统计、未入库新文件、调试残留、越界文件、可挂项目规则、自动体检项目记忆 |
 | `scripts/design_lint.py` | 设计稿自检：反模板装饰、外链资源、暗色、ease-in、文案对齐 |
+| `scripts/memory_check.py` | 检查 `.agents/MEMORY.md`（行数、标签、近重复、失效路径），支持 `--match` 为任务书摘抄相关记忆 |
+| `scripts/session_search.py` | 无 LLM 检索本地历史会话原话，核对过往用户拍板口径 |
+| `scripts/takeover_lead.sh` | 主控额度不足时启动备选主控并接入共用交接文件 `leader-handoff.md` |
 | `templates/` | 任务书、设计任务书、方向（含设计思路）、方向确认、报告、模块文档 |
-| `references/` | 方向门、审查清单、运行验收、省 token、踩坑、模块文档 |
+| `references/` | 方向门、设计稿打分表、审查清单、最坏数据 UI 压测、运行验收、记忆与主控交接、省 token、踩坑、模块文档 |
 | `examples/ios-uikit-swiftui/` | 一个真实 iOS 项目的接入示例 |

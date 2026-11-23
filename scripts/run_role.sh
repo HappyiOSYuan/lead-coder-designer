@@ -117,7 +117,11 @@ EXTRA=""
 [ "$ROLE" = designer ] && [ $PROBE -eq 0 ] && EXTRA="$ROOT"
 
 STAMP="$(date +%Y%m%d_%H%M%S)"
-CANDIDATES="${MODEL:-__default__} $FALLBACK"
+if [ "${SOP_FORCE_FALLBACK:-0}" = "1" ] && [ -n "$FALLBACK" ]; then
+  CANDIDATES="$FALLBACK"
+else
+  CANDIDATES="${MODEL:-__default__} $FALLBACK"
+fi
 rc=1
 for m in $CANDIDATES; do
   [ "$m" = "__default__" ] && m=""

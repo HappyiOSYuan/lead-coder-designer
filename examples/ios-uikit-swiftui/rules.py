@@ -13,4 +13,6 @@ RULES = [
      "加载数据用骨架，提交用按钮内转圈，不用全屏 HUD"),
     ("P06", "warn", r"\.truncationMode\(\.middle\)", (".swift",),
      "文件名截断保留开头 + 扩展名，不用中间截断"),
+    ("P07", "error", r"\bpassParams\[[^\]]+\]\s+as\s+Any\b", (".swift",),
+     "禁止把 Optional 强转 as Any 放进参数字典（字符串插值会变成 Optional(...)）"),
 ]

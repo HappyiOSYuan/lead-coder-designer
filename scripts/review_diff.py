@@ -101,6 +101,7 @@ def main():
     ap.add_argument("--scope", nargs="*", default=[])
     ap.add_argument("--rules")
     ap.add_argument("--limit", type=int, default=30)
+    ap.add_argument("--no-memory", action="store_true", help="跳过 .agents/MEMORY.md 体检")
     a = ap.parse_args()
 
     vcs, root = detect()
@@ -151,7 +152,19 @@ def main():
     print(f"== 新增行检查：error {errors} · warn {warns}")
     for lvl, rid, p, ln, msg, snip in sorted(hits)[: a.limit]:
         print(f"  {lvl:5} {rid} {p}:{ln}  {msg}\n        {snip}")
-    sys.exit(1 if errors else 0)
+
+    mem_err = 0
+    mem_file = os.path.join(root, ".agents", "MEMORY.md")
+    mem_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory_check.py")
+    if not a.no_memory and os.path.exists(mem_file) and os.path.exists(mem_script):
+        res = subprocess.run([sys.executable, "-I", mem_script, "--file", mem_file, "-q"],
+                             cwd=root, capture_output=True, text=True)
+        out = (res.stdout or res.stderr).strip()
+        if out:
+            print("== " + out)
+        if res.returncode != 0:
+            mem_err = 1
+    sys.exit(1 if (errors or mem_err) else 0)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,10 @@
     --primary-soft: #e8f8f5;
     --code: #587ee8;
     --code-soft: #edf2ff;
+    --commit: #c87d28;
+    --commit-soft: #fdf5ea;
+    --doc: #7866d6;
+    --doc-soft: #f3f0fd;
     --warn: #d65f55;
     --warn-soft: #fff0ed;
     --ink: #162b2a;
@@ -23,7 +27,8 @@
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --primary: #4bcabd; --primary-strong: #75ded4; --primary-soft: #123c38;
-      --code: #88a7ff; --code-soft: #1c294d; --warn: #ff8f84; --warn-soft: #452522;
+      --code: #88a7ff; --code-soft: #1c294d; --commit: #f0b366; --commit-soft: #382814;
+      --doc: #aba0f5; --doc-soft: #262047; --warn: #ff8f84; --warn-soft: #452522;
       --ink: #edf7f5; --muted: #a8bfbb; --surface: #101918; --surface-2: #162321;
       --lane: #121e1d; --line: #2d4441; --shadow: 0 18px 48px rgba(0, 0, 0, .32);
       --grid: rgba(75, 202, 189, .055); color-scheme: dark;
@@ -89,16 +94,22 @@
   .board .divider { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 7; }
   .board .flow { fill: none; stroke: var(--primary-strong); stroke-width: 2.5; marker-end: url(#arrow); }
   .board .flow-code { fill: none; stroke: var(--code); stroke-width: 2.5; marker-end: url(#arrow-code); }
+  .board .flow-commit { fill: none; stroke: var(--commit); stroke-width: 2.5; marker-end: url(#arrow-commit); }
+  .board .flow-doc { fill: none; stroke: var(--doc); stroke-width: 2.5; marker-end: url(#arrow-doc); }
   .board .flow-return { fill: none; stroke: var(--warn); stroke-width: 2.5; stroke-dasharray: 7 6; marker-end: url(#arrow-return); }
   .board .flow-neutral { fill: none; stroke: var(--muted); stroke-width: 2; marker-end: url(#arrow-neutral); }
   .board .node { fill: var(--surface); stroke: var(--line); stroke-width: 1.3; }
   .board .node-design { fill: var(--primary-soft); stroke: var(--primary); stroke-width: 1.5; }
   .board .node-code { fill: var(--code-soft); stroke: var(--code); stroke-width: 1.5; }
+  .board .node-commit { fill: var(--commit-soft); stroke: var(--commit); stroke-width: 1.5; }
+  .board .node-doc { fill: var(--doc-soft); stroke: var(--doc); stroke-width: 1.5; }
   .board .node-title { fill: var(--ink); font-size: 14px; font-weight: 720; }
   .board .node-body { fill: var(--muted); font-size: 12px; }
   .board .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; }
   .board .badge { fill: var(--primary); }
   .board .badge-code { fill: var(--code); }
+  .board .badge-commit { fill: var(--commit); }
+  .board .badge-doc { fill: var(--doc); }
   .board .badge-plain { fill: var(--muted); }
   .board .badge-text { fill: #fff; font-size: 12px; font-weight: 800; text-anchor: middle; dominant-baseline: central; }
   .board .decision { fill: var(--surface); stroke: var(--primary); stroke-width: 1.6; }
@@ -145,26 +156,28 @@
       <span>隐藏工具标注</span>
     </button>
   </div>
-  <p class="lede">一个需求，从拿到草稿图到设计、开发、验收、提交</p>
+  <p class="lede">按风险分流：快车道直修 · 标准道跳过设计 · 重装道走完整方向门 → 开发、逻辑自检、验收、提交</p>
 </header>
 
 <main class="scroll-shell" aria-label="可横向滚动的协作流程图">
-  <svg class="board" viewBox="0 0 1500 2700" role="img" aria-labelledby="diagram-title diagram-desc">
+  <svg class="board" viewBox="0 0 1500 3086" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">用户、大脑AI、设计AI、代码AI 的协作流程</title>
-    <desc id="diagram-desc">四条纵向泳道：草稿图整理、设计AI 出稿与审稿、方向确认、代码AI 开发与审 diff、模拟器验收、提交，以及专项工具和共享规则层。</desc>
+    <desc id="diagram-desc">四条纵向泳道：草稿图整理、设计AI 出稿与审稿打分、方向确认、代码AI 开发与审 diff、模拟器验收与压测、提交复盘，以及专项工具和共享规则层。</desc>
 
     <defs>
       <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--primary-strong)"/></marker>
       <marker id="arrow-code" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--code)"/></marker>
+      <marker id="arrow-commit" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--commit)"/></marker>
+      <marker id="arrow-doc" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--doc)"/></marker>
       <marker id="arrow-return" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--warn)"/></marker>
       <marker id="arrow-neutral" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--muted)"/></marker>
     </defs>
 
-    <rect class="board-bg" x="1" y="1" width="1498" height="2698" rx="22"/>
+    <rect class="board-bg" x="1" y="1" width="1498" height="3084" rx="22"/>
 
     <!-- Four role lanes -->
     <g aria-label="用户泳道">
-      <rect class="lane" x="24" y="24" width="342" height="1930" rx="15"/>
+      <rect class="lane" x="24" y="24" width="342" height="2230" rx="15"/>
       <path class="lane-head" d="M39 24h312a15 15 0 0 1 15 15v111H24V39a15 15 0 0 1 15-15z"/>
       <rect class="lane-accent" x="24" y="24" width="342" height="7" rx="4"/>
       <text class="role-title" x="46" y="62">用户</text>
@@ -172,16 +185,16 @@
       <text class="role-sub" x="46" y="109">Xcode 编译装机，Terminal 提交</text>
     </g>
     <g aria-label="大脑AI 泳道">
-      <rect class="lane" x="386" y="24" width="342" height="1930" rx="15"/>
+      <rect class="lane" x="386" y="24" width="342" height="2230" rx="15"/>
       <path class="lane-head" d="M401 24h312a15 15 0 0 1 15 15v111H386V39a15 15 0 0 1 15-15z"/>
       <rect class="lane-accent" x="386" y="24" width="342" height="7" rx="4"/>
-      <text class="role-title" x="408" y="62">大脑AI</text>
-      <text class="role-sub" x="408" y="86">定位，写 brief 和任务书</text>
-      <text class="role-sub" x="408" y="107">审稿，审 diff，截图验收</text>
-      <text class="role-sub" x="408" y="129">不改工程代码，不出设计点子</text>
+      <text class="role-title" x="408" y="60">大脑AI</text>
+      <text class="role-sub" x="408" y="82">定位，写 brief 和任务书，审稿审 diff</text>
+      <text class="role-sub" x="408" y="102">不改工程代码，不出设计点子</text>
+      <text class="role-sub" x="408" y="122">额度不足用 takeover_lead.sh 热接管</text>
     </g>
     <g aria-label="设计AI 泳道">
-      <rect class="lane" x="748" y="24" width="342" height="1930" rx="15"/>
+      <rect class="lane" x="748" y="24" width="342" height="2230" rx="15"/>
       <path class="lane-head" d="M763 24h312a15 15 0 0 1 15 15v111H748V39a15 15 0 0 1 15-15z"/>
       <rect class="lane-accent" x="748" y="24" width="342" height="7" rx="4"/>
       <text class="role-title" x="770" y="62">设计AI</text>
@@ -190,7 +203,7 @@
       <text class="role-sub" x="770" y="129">只写 DesignMockups/</text>
     </g>
     <g aria-label="代码AI 泳道">
-      <rect class="lane" x="1110" y="24" width="366" height="1930" rx="15"/>
+      <rect class="lane" x="1110" y="24" width="366" height="2230" rx="15"/>
       <path class="lane-head" d="M1125 24h336a15 15 0 0 1 15 15v111h-366V39a15 15 0 0 1 15-15z"/>
       <rect class="lane-accent" x="1110" y="24" width="366" height="7" rx="4"/>
       <text class="role-title" x="1132" y="62">代码AI</text>
@@ -225,57 +238,61 @@
     <!-- Step 2: brief, 设计AI, review -->
     <path class="flow" d="M565 290 V324"/>
     <g transform="translate(430 324)">
-      <rect class="node-design" width="270" height="120" rx="12"/>
+      <rect class="node-design" width="270" height="138" rx="12"/>
       <circle class="badge" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">2</text>
       <text class="node-title" x="44" y="26">写设计 brief</text>
-      <text class="node-body mono" x="18" y="50">gf_design_brief.py</text>
-      <text class="node-body" x="18" y="70">大改版：--directions 2–3</text>
-      <text class="node-body" x="18" y="88">小修：--rev</text>
-      <text class="node-body" x="18" y="106">只写用户原话和事实，不给设计点子</text>
+      <text class="node-body mono" x="18" y="48">gf_design_brief.py</text>
+      <text class="node-body" x="18" y="66">大改版：--directions 2–3</text>
+      <text class="node-body" x="18" y="84">大改版先出方向；改版已上线页面保留骨架</text>
+      <text class="node-body" x="18" y="102">小修：--rev</text>
+      <text class="node-body" x="18" y="120">只写用户原话和事实，不给设计点子</text>
     </g>
     <path class="flow" d="M700 384 H776"/>
     <g transform="translate(776 324)">
-      <rect class="node-design" width="286" height="150" rx="12"/>
+      <rect class="node-design" width="286" height="202" rx="12"/>
       <circle class="badge" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">2</text>
       <text class="node-title" x="44" y="26">出 HTML + handoff.md</text>
-      <text class="node-body" x="18" y="52">在设计稿目录后台运行，10–70 分钟</text>
-      <text class="node-body" x="18" y="70">handoff 写动效曲线、SwiftUI 对照</text>
-      <text class="node-body" x="18" y="88">额度用完自动换 flash-high</text>
-      <text class="node-body mono" x="18" y="106">DesignMockups/&lt;任务&gt;/</text>
-      <g class="tool-annotation" transform="translate(16 116)">
+      <text class="node-body" x="18" y="50">在设计稿目录后台运行，10–70 分钟</text>
+      <text class="node-body" x="18" y="68">handoff 写动效曲线、SwiftUI 对照</text>
+      <text class="node-body" x="18" y="86">默认模型 gemini-4-neon-high</text>
+      <text class="node-body" x="18" y="104">方向稿先写设计思路：</text>
+      <text class="node-body" x="18" y="122">form 四问、方向卡、过头检查</text>
+      <text class="node-body mono" x="18" y="142">DesignMockups/&lt;任务&gt;/</text>
+      <g class="tool-annotation" transform="translate(16 156)">
         <g><rect class="mini-tool-chip" width="85" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">run_role.sh</text></g>
         <g transform="translate(91 0)"><rect class="mini-tool-chip" width="85" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">ios26-design</text></g>
       </g>
     </g>
-    <path class="flow" d="M919 474 V530 H700"/>
-    <g transform="translate(430 480)">
-      <rect class="node-design" width="270" height="100" rx="12"/>
+    <path class="flow" d="M919 526 V590 H700"/>
+    <g transform="translate(430 540)">
+      <rect class="node-design" width="270" height="114" rx="12"/>
       <circle class="badge" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">2</text>
-      <text class="node-title" x="44" y="26">审稿</text>
+      <text class="node-title" x="44" y="26">审稿与打分</text>
       <text class="node-body" x="18" y="48">lint error = 0，内容与原页一致</text>
-      <text class="node-body" x="18" y="66">玻璃位置，反模板装饰</text>
-      <g class="tool-annotation" transform="translate(16 76)">
-        <g><rect class="mini-tool-chip" width="95" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">design_lint.py</text></g>
-        <g transform="translate(101 0)"><rect class="mini-tool-chip" width="95" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">gf_design_shot</text></g>
+      <text class="node-body" x="18" y="66">6 维打分（0 维≤5 封顶 6），不写方案</text>
+      <g class="tool-annotation" transform="translate(14 84)">
+        <g><rect class="mini-tool-chip" width="76" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">design_lint</text></g>
+        <g transform="translate(80 0)"><rect class="mini-tool-chip" width="76" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">design_shot</text></g>
+        <g transform="translate(160 0)"><rect class="mini-tool-chip" width="84" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">design-review</text></g>
       </g>
     </g>
 
-    <path class="flow" d="M565 580 V606"/>
-    <path class="decision" d="M565 606 L630 634 L565 662 L500 634 Z"/>
-    <text class="decision-text" x="565" y="634">合规？</text>
-    <path class="flow-return" d="M630 634 H1030 V474"/>
-    <g transform="translate(760 622)"><rect class="edge-label-bg" width="124" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不合规，--rev 退回</text></g>
-    <path class="flow" d="M500 634 H324"/>
-    <g transform="translate(360 623)"><rect class="edge-label-bg" width="102" height="22" rx="11"/><text class="edge-label" x="11" y="15">合规，交用户看</text></g>
+    <path class="flow" d="M565 654 V666"/>
+    <path class="decision" d="M565 666 L630 694 L565 722 L500 694 Z"/>
+    <text class="decision-text" x="565" y="694">合规？</text>
+    <path class="flow-return" d="M630 694 H1030 V526"/>
+    <g transform="translate(760 682)"><rect class="edge-label-bg" width="124" height="24" rx="12"/><text class="edge-label-warn" x="11" y="16">不合规，--rev 退回</text></g>
+    <path class="flow" d="M500 694 H324"/>
+    <g transform="translate(360 683)"><rect class="edge-label-bg" width="102" height="22" rx="11"/><text class="edge-label" x="11" y="15">合规，交用户看</text></g>
 
     <!-- Step 3: direction gate -->
-    <g transform="translate(48 596)">
+    <g transform="translate(48 656)">
       <rect class="node-design" width="276" height="76" rx="12"/>
       <circle class="badge" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">3</text>
       <text class="node-title" x="44" y="26">看稿</text>
       <text class="node-body" x="18" y="52">看 大脑AI 交来的画板截图</text>
     </g>
-    <path class="flow" d="M186 672 V772"/>
+    <path class="flow" d="M186 732 V772"/>
     <path class="decision" d="M186 772 L251 800 L186 828 L121 800 Z"/>
     <text class="decision-text" x="186" y="800">看稿结论</text>
 
@@ -307,7 +324,7 @@
       <circle class="badge-code" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">4</text>
       <text class="node-title" x="44" y="26">开任务范围，写任务书</text>
       <text class="node-body mono" x="18" y="50">scope.py start &lt;任务&gt;</text>
-      <text class="node-body" x="18" y="70">gf_task_brief 定位到文件:行</text>
+      <text class="node-body" x="18" y="70">gf_task_brief 定位文件:行 + 抄相关记忆</text>
       <text class="node-body" x="18" y="88">补设计稿路径，文案以原页面为准</text>
       <text class="node-body" x="18" y="106">派完告诉用户预计多久</text>
       <g class="tool-annotation" transform="translate(16 118)">
@@ -321,9 +338,9 @@
       <circle class="badge-code" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">4</text>
       <text class="node-title" x="44" y="26">按任务书改代码</text>
       <text class="node-body" x="18" y="53">run_role.sh coder 派发，用默认模型</text>
-      <text class="node-body" x="18" y="73">额度用完换 opus-5-5-medium</text>
+      <text class="node-body" x="18" y="73">额度用完换 opus-5-5-medium / auto</text>
       <text class="node-body" x="18" y="91">新模块走 gf-new-module-swift</text>
-      <text class="node-body" x="18" y="109">默认不编译，用户在 Xcode 编</text>
+      <text class="node-body" x="18" y="109">默认不编译；解析/参数/分页跑轻量逻辑自检</text>
       <g class="tool-annotation" transform="translate(16 120)">
         <g><rect class="mini-tool-chip" width="110" height="18" rx="5"/><circle class="owner-dot-cursor" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">backup_pbxproj.sh</text></g>
         <g transform="translate(116 0)"><rect class="mini-tool-chip" width="122" height="18" rx="5"/><circle class="owner-dot-cursor" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">gf_new_module_swift</text></g>
@@ -402,104 +419,152 @@
     <g transform="translate(860 1419)"><rect class="edge-label-bg" width="91" height="22" rx="11"/><text class="edge-label" x="11" y="15">修完重新编译</text></g>
 
     <!-- Step 7: commit -->
-    <path class="flow-neutral" d="M565 1698 V1730"/>
+    <path class="flow-commit" d="M565 1698 V1730"/>
     <g transform="translate(543 1703)"><rect class="edge-label-bg" width="45" height="22" rx="11"/><text class="edge-label" x="11" y="15">一致</text></g>
     <g transform="translate(430 1730)">
-      <rect class="node" width="270" height="90" rx="12"/>
-      <circle class="badge-plain" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">7</text>
-      <text class="node-title" x="44" y="26">收尾，准备提交命令</text>
+      <rect class="node-commit" width="270" height="90" rx="12"/>
+      <circle class="badge-commit" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">7</text>
+      <text class="node-title" x="44" y="26">收尾，列出改动文件</text>
       <text class="node-body" x="18" y="52">逐条核对 AGENTS.md 收尾清单</text>
       <text class="node-body" x="18" y="72">写明还有哪些别的 changelist</text>
     </g>
-    <path class="flow-neutral" d="M430 1775 H324"/>
+    <path class="flow-commit" d="M430 1775 H324"/>
     <g transform="translate(48 1730)">
-      <rect class="node" width="276" height="90" rx="12"/>
-      <circle class="badge-plain" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">7</text>
-      <text class="node-title" x="44" y="26">Terminal.app 提交</text>
-      <text class="node-body" x="18" y="52">svn commit 需要密码</text>
+      <rect class="node-commit" width="276" height="90" rx="12"/>
+      <circle class="badge-commit" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">7</text>
+      <text class="node-title" x="44" y="26">Cornerstone 提交</text>
+      <text class="node-body" x="18" y="52">用户在 Cornerstone 手动提交</text>
       <text class="node-body" x="18" y="72">代理都不执行 commit</text>
     </g>
-    <path class="flow-neutral" d="M186 1820 V1888 H430"/>
+    <path class="flow-commit" d="M186 1820 V1888 H430"/>
     <g transform="translate(430 1850)">
-      <rect class="node" width="270" height="76" rx="12"/>
-      <circle class="badge-plain" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">7</text>
+      <rect class="node-commit" width="270" height="76" rx="12"/>
+      <circle class="badge-commit" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">7</text>
       <text class="node-title" x="44" y="26">确认提交内容</text>
       <text class="node-body mono" x="18" y="50">svn status / svn info</text>
       <text class="node-body" x="18" y="66">更新项目记忆，下个需求开新会话</text>
     </g>
 
+    <!-- Step 8: module doc -->
+    <line class="divider" x1="24" y1="1956" x2="1476" y2="1956"/>
+    <text class="section-label" x="44" y="1980">模块文档</text>
+
+    <path class="flow-doc" d="M565 1926 V1956 H186 V2006"/>
+    <g transform="translate(320 1945)"><rect class="edge-label-bg" width="102" height="22" rx="11"/><text class="edge-label" x="11" y="15">若点名文档</text></g>
+
+    <g transform="translate(48 2006)">
+      <rect class="node-doc" width="276" height="84" rx="12"/>
+      <circle class="badge-doc" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">8</text>
+      <text class="node-title" x="44" y="26">点名一个模块</text>
+      <text class="node-body mono" x="18" y="50">「写模块文档 X」</text>
+      <text class="node-body" x="18" y="70">只在用户点名时做，不主动补写</text>
+    </g>
+    <path class="flow-doc" d="M324 2048 H430"/>
+    <g transform="translate(430 1996)">
+      <rect class="node-doc" width="270" height="104" rx="12"/>
+      <circle class="badge-doc" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">8</text>
+      <text class="node-title" x="44" y="26">生成骨架</text>
+      <text class="node-body mono" x="18" y="48">gf_module_doc.py</text>
+      <text class="node-body" x="18" y="66">文件清单、接口表从代码取</text>
+      <g class="tool-annotation" transform="translate(16 76)">
+        <g><rect class="mini-tool-chip" width="118" height="18" rx="5"/><circle class="owner-dot-claude" cx="8" cy="9" r="2.5"/><text class="mini-tool-text mono" x="14" y="12.5">gf_module_doc.py</text></g>
+      </g>
+    </g>
+    <path class="flow-doc" d="M700 2048 H1138"/>
+    <g transform="translate(1138 1986)">
+      <rect class="node-doc" width="310" height="124" rx="12"/>
+      <circle class="badge-doc" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">8</text>
+      <text class="node-title" x="44" y="26">按骨架填 TODO</text>
+      <text class="node-body" x="18" y="50">只来自代码，只改这一个 md</text>
+      <text class="node-body" x="18" y="70">规则注明 文件:行号</text>
+      <text class="node-body" x="18" y="90">看不出来写「待确认」</text>
+    </g>
+    <path class="flow-doc" d="M1138 2080 H1100 V2175 H700"/>
+    <g transform="translate(430 2130)">
+      <rect class="node-doc" width="270" height="90" rx="12"/>
+      <circle class="badge-doc" cx="22" cy="22" r="13"/><text class="badge-text" x="22" y="22">8</text>
+      <text class="node-title" x="44" y="26">抽查并生成查阅网页</text>
+      <text class="node-body" x="18" y="50">抽查行号和接口参数</text>
+      <text class="node-body mono" x="18" y="70">--html 生成查阅网页（不手改网页）</text>
+    </g>
+
     <!-- Standalone specialist tools -->
     <g class="tool-annotation" aria-label="专项工具">
-      <rect class="support-card" x="48" y="1984" width="1404" height="196" rx="14"/>
-      <text class="support-title" x="70" y="2016">专项工具</text>
-      <text class="support-copy" x="70" y="2037">不在主流程里，按需使用，输出都是摘要</text>
-      <g transform="translate(70 2056)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_dead_code_scan.py</text><text class="tool-chip-note" x="26" y="36">死代码扫描，全工程约 10 秒</text></g>
-      <g transform="translate(413 2056)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_swift_progress.py</text><text class="tool-chip-note" x="26" y="36">OC→Swift 迁移进度，只算参与编译的文件</text></g>
-      <g transform="translate(756 2056)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_image_check.py</text><text class="tool-chip-note" x="26" y="36">图片资源：缺图、未使用、缺 @3x</text></g>
-      <g transform="translate(1099 2056)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_api_list.py</text><text class="tool-chip-note" x="26" y="36">接口清单，写新接口类前先查</text></g>
-      <g transform="translate(70 2112)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_route_check.py</text><text class="tool-chip-note" x="26" y="36">URL 路由和 Presenter 标识检查</text></g>
-      <g transform="translate(413 2112)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_lint_rules.py</text><text class="tool-chip-note" x="26" y="36">规则 L01–L12，可扫整个模块看存量问题</text></g>
-      <g transform="translate(756 2112)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-cursor" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_build_summary.py</text><text class="tool-chip-note" x="26" y="36">要编译时用，只输出错误和新增警告</text></g>
-      <g transform="translate(1099 2112)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_sim_verify.sh</text><text class="tool-chip-note" x="26" y="36">install / shot；多台模拟器时改用 simctl 指定 udid</text></g>
+      <rect class="support-card" x="48" y="2284" width="1404" height="252" rx="14"/>
+      <text class="support-title" x="70" y="2316">专项工具</text>
+      <text class="support-copy" x="70" y="2337">不在主流程里，按需使用，输出都是摘要</text>
+      <g transform="translate(70 2356)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_dead_code_scan.py</text><text class="tool-chip-note" x="26" y="36">死代码扫描，全工程约 10 秒</text></g>
+      <g transform="translate(413 2356)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_swift_progress.py</text><text class="tool-chip-note" x="26" y="36">OC→Swift 迁移进度，只算参与编译的文件</text></g>
+      <g transform="translate(756 2356)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_image_check.py</text><text class="tool-chip-note" x="26" y="36">图片资源：缺图、未使用、缺 @3x</text></g>
+      <g transform="translate(1099 2356)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_api_list.py</text><text class="tool-chip-note" x="26" y="36">接口清单，写新接口类前先查</text></g>
+      <g transform="translate(70 2412)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_route_check.py</text><text class="tool-chip-note" x="26" y="36">URL 路由和 Presenter 标识检查</text></g>
+      <g transform="translate(413 2412)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_lint_rules.py</text><text class="tool-chip-note" x="26" y="36">规则 L01–L14（含失败分支 retry/双提示检查）</text></g>
+      <g transform="translate(756 2412)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-cursor" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_build_summary.py</text><text class="tool-chip-note" x="26" y="36">要编译时用，只输出错误和新增警告</text></g>
+      <g transform="translate(1099 2412)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">gf_sim_verify.sh</text><text class="tool-chip-note" x="26" y="36">install / shot；多台模拟器时改用 simctl 指定 udid</text></g>
+      <g transform="translate(70 2468)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">memory_check.py</text><text class="tool-chip-note" x="26" y="36">体检 MEMORY.md（≤150行）+ --audit-rules 清理过时规则</text></g>
+      <g transform="translate(413 2468)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">session_search.py</text><text class="tool-chip-note" x="26" y="36">无 LLM 检索历史会话原话，核对过往口径</text></g>
+      <g transform="translate(756 2468)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">takeover_lead.sh</text><text class="tool-chip-note" x="26" y="36">主控额度耗尽热接管，共用 leader-handoff.md</text></g>
+      <g transform="translate(1099 2468)"><rect class="tool-chip" width="327" height="48" rx="9"/><circle class="owner-dot-claude" cx="14" cy="18" r="3"/><text class="tool-chip-text mono" x="26" y="20">design-review.md</text><text class="tool-chip-note" x="26" y="36">设计稿 6 维打分表（0 维立意一票否决）</text></g>
     </g>
 
     <!-- Shared layer -->
     <g aria-label="共享层">
-      <rect class="shared" x="24" y="2204" width="1452" height="472" rx="15"/>
-      <text class="shared-title" x="48" y="2240">共享层</text>
+      <rect class="shared" x="24" y="2560" width="1452" height="496" rx="15"/>
+      <text class="shared-title" x="48" y="2596">共享层</text>
 
-      <rect class="support-card" x="48" y="2258" width="452" height="394" rx="12"/>
-      <text class="shared-label" x="70" y="2287">设计约束（gf_design_brief 自动写入）</text>
-      <text class="shared-copy" x="70" y="2316">苹果风，界面能直接用 SwiftUI 实现</text>
-      <text class="shared-copy" x="70" y="2338">只做浅色，不出暗色屏</text>
-      <text class="shared-copy" x="70" y="2360">系统导航栏 #36B6A9 实底白字，无玻璃、无大标题</text>
-      <text class="shared-copy" x="70" y="2382">改版内容不增不减，原文和格式照旧</text>
-      <text class="shared-copy" x="70" y="2404">图标只用 icons/ 里导出的现有图标</text>
-      <text class="shared-copy" x="70" y="2426">Liquid Glass 只在导航和操控层，不叠两层</text>
-      <text class="shared-copy" x="70" y="2448">边距和列表缩进 16pt，按 iPhone 17 宽 402pt</text>
-      <text class="shared-copy" x="70" y="2470">动效 ease-out，常规 ≤300ms，不从 scale 0 起</text>
-      <text class="shared-copy" x="70" y="2492">不用模板装饰：英文小标签、渐变、emoji、左彩条</text>
-      <text class="rule-group" x="70" y="2528">设计AI 读的 skill</text>
-      <text class="rule-list mono" x="70" y="2548">.agents/skills/ios26-design（自动发现）</text>
-      <text class="rule-list mono" x="70" y="2566">gf-swiftui-specialist（动效取舍、Liquid Glass 取舍）</text>
-      <text class="rule-list mono" x="70" y="2584">gf-break-ui（极端数据）</text>
-      <text class="shared-copy" x="70" y="2620">首轮 2–3 个方向，用户选定后才出完整稿</text>
+      <rect class="support-card" x="48" y="2614" width="452" height="418" rx="12"/>
+      <text class="shared-label" x="70" y="2643">设计约束（gf_design_brief 自动写入）</text>
+      <text class="shared-copy" x="70" y="2672">苹果风，界面能直接用 SwiftUI 实现</text>
+      <text class="shared-copy" x="70" y="2694">只做浅色，不出暗色屏</text>
+      <text class="shared-copy" x="70" y="2716">系统导航栏 #36B6A9 实底白字，无玻璃、无大标题</text>
+      <text class="shared-copy" x="70" y="2738">改版内容不增不减，原文和格式照旧</text>
+      <text class="shared-copy" x="70" y="2760">图标只用 icons/ 里导出的现有图标</text>
+      <text class="shared-copy" x="70" y="2782">Liquid Glass 只在导航和操控层，不叠两层</text>
+      <text class="shared-copy" x="70" y="2804">边距和列表缩进 16pt，按 iPhone 17 宽 402pt</text>
+      <text class="shared-copy" x="70" y="2826">动效 ease-out，常规 ≤300ms，不从 scale 0 起</text>
+      <text class="shared-copy" x="70" y="2848">不用模板装饰：英文小标签、渐变、emoji、左彩条</text>
+      <text class="shared-copy" x="70" y="2870">设计AI 任务书第一行：只用读写文件工具，不调 shell</text>
+      <text class="rule-group" x="70" y="2906">设计AI 读的 skill</text>
+      <text class="rule-list mono" x="70" y="2926">.agents/skills/ios26-design（自动发现）</text>
+      <text class="rule-list mono" x="70" y="2944">gf-swiftui-specialist（动效取舍、Liquid Glass 取舍）</text>
+      <text class="rule-list mono" x="70" y="2962">gf-break-ui（极端数据）</text>
+      <text class="shared-copy" x="70" y="2998">首轮 2–3 个方向，用户选定后才出完整稿</text>
 
-      <rect class="support-card" x="516" y="2258" width="468" height="394" rx="12"/>
-      <text class="shared-label" x="538" y="2287">Skills 与 Rules（每次点名 1–3 个）</text>
-      <g transform="translate(790 2271)"><rect class="audit-badge" width="90" height="24" rx="12"/><text class="audit-badge-text" x="10" y="16">← 来自审核</text></g>
-      <text class="skill-line-name mono" x="538" y="2318">gf-new-module-swift</text><text class="skill-line" x="752" y="2318">新建 Swift VIPER 模块</text>
-      <text class="skill-line-name mono" x="538" y="2340">gf-module-oc-to-swift-rewrite</text><text class="skill-line" x="752" y="2340">模块 OC→Swift 全量改写</text>
-      <text class="skill-line-name mono" x="538" y="2362">gf-forum-swift-rewrite</text><text class="skill-line" x="752" y="2362">事务讨论改写专用</text>
-      <text class="skill-line-name mono" x="538" y="2384">gf-swiftui-specialist</text><text class="skill-line" x="752" y="2384">SwiftUI 写法、动效、玻璃</text>
-      <text class="skill-line-name mono" x="538" y="2406">gf-uikit-app-modernization</text><text class="skill-line" x="752" y="2406">UIKit 现代化</text>
-      <text class="skill-line-name mono" x="538" y="2428">gf-break-ui</text><text class="skill-line" x="752" y="2428">极端数据压测</text>
-      <text class="skill-line-name mono" x="538" y="2450">gf-code-de-redundancy</text><text class="skill-line" x="752" y="2450">规则内去冗余</text>
-      <text class="skill-line-name mono" x="538" y="2472">gf-xcode-skills-policy</text><text class="skill-line" x="752" y="2472">选用哪些 skill 的总策略</text>
-      <text class="rule-group" x="538" y="2506">Rules（26 条，.cursor/rules）总是适用</text>
-      <text class="rule-list mono" x="538" y="2526">gf-self-review, swift-syntax-correct, oc-swift-selector</text>
-      <text class="rule-list mono" x="538" y="2544">oc-swift-weakify, oc-swift-bridging-header, layout-masonry-sd</text>
-      <text class="rule-list mono" x="538" y="2562">ponytail, xcode-pbxproj-safe, third-party-pod-patch</text>
-      <text class="rule-group" x="538" y="2592">按页面类型挑</text>
-      <text class="rule-list mono" x="538" y="2612">gfform-swiftui, swiftui-hosting-vc, skeleton-snapkit, viper-*</text>
-      <text class="shared-copy" x="538" y="2636">审核发现的错误，更新或新增 rule，防止再犯</text>
+      <rect class="support-card" x="516" y="2614" width="468" height="418" rx="12"/>
+      <text class="shared-label" x="538" y="2643">Skills 与 Rules（每次点名 1–3 个）</text>
+      <g transform="translate(790 2627)"><rect class="audit-badge" width="90" height="24" rx="12"/><text class="audit-badge-text" x="10" y="16">← 来自审核</text></g>
+      <text class="skill-line-name mono" x="538" y="2674">gf-new-module-swift</text><text class="skill-line" x="752" y="2674">新建 Swift VIPER 模块</text>
+      <text class="skill-line-name mono" x="538" y="2696">gf-module-oc-to-swift-rewrite</text><text class="skill-line" x="752" y="2696">模块 OC→Swift 全量改写</text>
+      <text class="skill-line-name mono" x="538" y="2718">gf-forum-swift-rewrite</text><text class="skill-line" x="752" y="2718">事务讨论改写专用</text>
+      <text class="skill-line-name mono" x="538" y="2740">gf-swiftui-specialist</text><text class="skill-line" x="752" y="2740">SwiftUI 写法、动效、玻璃</text>
+      <text class="skill-line-name mono" x="538" y="2762">gf-uikit-app-modernization</text><text class="skill-line" x="752" y="2762">UIKit 现代化</text>
+      <text class="skill-line-name mono" x="538" y="2784">gf-break-ui</text><text class="skill-line" x="752" y="2784">极端数据压测</text>
+      <text class="skill-line-name mono" x="538" y="2806">gf-code-de-redundancy</text><text class="skill-line" x="752" y="2806">规则内去冗余</text>
+      <text class="skill-line-name mono" x="538" y="2828">gf-xcode-skills-policy</text><text class="skill-line" x="752" y="2828">选用哪些 skill 的总策略</text>
+      <text class="rule-group" x="538" y="2862">Rules（26 条，.cursor/rules）总是适用</text>
+      <text class="rule-list mono" x="538" y="2882">gf-self-review, swift-syntax-correct, oc-swift-selector</text>
+      <text class="rule-list mono" x="538" y="2900">oc-swift-weakify, oc-swift-bridging-header, layout-masonry-sd</text>
+      <text class="rule-list mono" x="538" y="2918">ponytail, xcode-pbxproj-safe, third-party-pod-patch</text>
+      <text class="rule-group" x="538" y="2948">按页面类型挑</text>
+      <text class="rule-list mono" x="538" y="2968">gfform-swiftui, swiftui-hosting-vc, skeleton-snapkit, viper-*</text>
+      <text class="shared-copy" x="538" y="2992">审出错误反哺 rule，并定期 --audit-rules 清理过时规则</text>
 
-      <rect class="support-card" x="1000" y="2258" width="452" height="394" rx="12"/>
-      <text class="shared-label" x="1022" y="2287">AGENTS.md 收尾清单 + 省 token</text>
-      <text class="rule-group" x="1022" y="2316">收尾清单（三个代理都读）</text>
-      <text class="shared-copy" x="1022" y="2340">1  只改任务范围内的文件</text>
-      <text class="shared-copy" x="1022" y="2362">2  新文件加 target 并 svn add</text>
-      <text class="shared-copy" x="1022" y="2384">3  报告草稿不进工程目录</text>
-      <text class="shared-copy" x="1022" y="2406">4  review_diff.py error = 0</text>
-      <text class="shared-copy" x="1022" y="2428">5  列改动文件、用到的规则、跳过项</text>
-      <text class="shared-copy" x="1022" y="2450">6  不 svn commit</text>
-      <text class="rule-group" x="1022" y="2484">省 token</text>
-      <text class="shared-copy" x="1022" y="2508">派任务前先定位到文件和行号</text>
-      <text class="shared-copy" x="1022" y="2530">大搜索用脚本出摘要</text>
-      <text class="shared-copy" x="1022" y="2552">日志只看末尾，审 diff 只看标出的行</text>
-      <text class="shared-copy" x="1022" y="2574">设计和 UI 每次只看一张截图</text>
-      <text class="shared-copy" x="1022" y="2596">一个需求一个会话</text>
-      <text class="shared-copy" x="1022" y="2630">大脑AI 的记忆里存着分工、流程和用户裁定</text>
+      <rect class="support-card" x="1000" y="2614" width="452" height="418" rx="12"/>
+      <text class="shared-label" x="1022" y="2643">AGENTS.md 收尾清单 + 记忆与省 token</text>
+      <text class="rule-group" x="1022" y="2672">收尾清单（三个代理都读）</text>
+      <text class="shared-copy" x="1022" y="2694">1  只改任务范围内的文件</text>
+      <text class="shared-copy" x="1022" y="2714">2  新文件加 target 并 svn add</text>
+      <text class="shared-copy" x="1022" y="2734">3  报告草稿不进工程目录</text>
+      <text class="shared-copy" x="1022" y="2754">4  review_diff.py（含 memory_check）error = 0</text>
+      <text class="shared-copy" x="1022" y="2774">5  列改动文件、用到的规则、跳过项</text>
+      <text class="shared-copy" x="1022" y="2794">6  不 svn commit</text>
+      <text class="shared-copy" x="1022" y="2814">7  复盘：踩坑/新约定写回 .agents/MEMORY.md</text>
+      <text class="rule-group" x="1022" y="2846">省 token 与上下文</text>
+      <text class="shared-copy" x="1022" y="2868">派任务前先定位文件:行，按标签抄相关记忆</text>
+      <text class="shared-copy" x="1022" y="2888">大搜索用脚本出摘要，日志只看末尾</text>
+      <text class="shared-copy" x="1022" y="2908">设计和 UI 每次只看一张截图</text>
+      <text class="shared-copy" x="1022" y="2928">一个需求一个会话，历史口径用 session_search</text>
+      <text class="shared-copy" x="1022" y="2966">.agents/MEMORY.md 唯一记忆 · leader-handoff.md 主控交接</text>
     </g>
   </svg>
 </main>

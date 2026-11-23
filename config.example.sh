@@ -6,16 +6,21 @@
 # 可选适配器：cursor-agent | codex | claude | agy | aider（见 scripts/adapters/）
 CODER_ADAPTER="cursor-agent"
 CODER_MODEL=""                      # 留空 = 该 CLI 的默认模型
-CODER_FALLBACK=""                   # 空格分隔；额度用完时依次尝试，如 "claude-opus-5-5-medium"
+CODER_FALLBACK=""                   # 空格分隔；额度用完时依次尝试，如 "claude-opus-5-5-medium auto"
+                                    # 临时跳过主模型直奔备用：SOP_FORCE_FALLBACK=1 run_role.sh coder …
 
 # ---- 设计角色 ----
 DESIGNER_ADAPTER="agy"
-DESIGNER_MODEL=""                   # 如 "gemini-4-argon-high"
-DESIGNER_FALLBACK=""                # 如 "gemini-3.8-flash-high"
+DESIGNER_MODEL=""                   # 如 "gemini-4-neon-high"
+DESIGNER_FALLBACK=""                # 留空 = 不自动降级，额度用完停下问用户
 DESIGN_DIR="DesignMockups"          # 设计稿根目录（相对项目根），建议加入版本库忽略
 
+# ---- 备选主控（主控额度不足时，scripts/takeover_lead.sh 使用）----
+LEAD_BACKUP_CLI="agy"               # 可选：agy | claude
+LEAD_BACKUP_MODEL=""                # 如 "gemini-4-neon-high"
+
 # ---- 运行目录 ----
-SOP_HOME="${SOP_HOME:-${HOME}/.cache/lead-coder-designer}"   # 任务书、日志、快照放这里，不进工程目录
+SOP_HOME="${SOP_HOME:-${HOME}/.cache/lead-coder-designer}"   # 任务书、日志、快照、leader-handoff.md 放这里，不进工程目录
 
 # ---- 交给设计角色的固定前言（每次自动加在任务书前面）----
 DESIGNER_PREAMBLE="重要：只用读文件 / 写文件 / 列目录工具，绝对不要调用任何 shell 命令（包括 ls、cat、find、grep），否则会被拒绝导致任务失败。你是 AGENTS.md 里的设计角色：只做设计。只读写当前目录（及附加目录）里的文件；不改工程代码。"

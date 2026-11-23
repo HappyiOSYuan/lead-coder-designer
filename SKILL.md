@@ -28,27 +28,36 @@ Principle: **the user decides, the lead gatekeeps, executors execute.** The lead
 
 ## 3. Main flow
 
+### Pick the lane first (match process weight to risk)
+
+| Lane | Typical request | Steps to run |
+|---|---|---|
+| **Fast** | ≤2 files, clear root cause, no UI structure change (bug fix, copy/param tweak) | ① locate → short brief (or direct small fix if project allows) → `review_diff.py` → ⑨ wrap-up |
+| **Standard** | Feature work, API integration, refactor / rewrite without redesign | ① locate → ⑤ brief → ⑥ code → ⑦ review (+ logic self-check) → ⑧ acceptance → ⑨ wrap-up |
+| **Full** | New screen, new visuals, major redesign, "improve the design" | Full flow ① → ⑨ (direction gate + 6-dimension rubric + worst-case UI stress test) |
+
 ```
-request → ① locate → ② design (optional) → ③ direction gate → ④ full set → ⑤ brief → ⑥ code → ⑦ review → ⑧ acceptance → ⑨ wrap-up → (⑩ module doc)
+request → [Fast / Standard / Full] → ① locate → ② design (Full) → ③ direction gate → ④ full set
+        → ⑤ brief → ⑥ code → ⑦ review → ⑧ acceptance → ⑨ wrap-up → (⑩ module doc)
 ```
 
 ① **Locate**: use scripts first (references, call sites, the old implementation) and produce "which files, which lines, which existing implementation to copy". Wide searches go to a script with summarized output, not to a model reading files one by one (see `references/token-saving.md`).
 
 ② **Design** (only when the UI changes): write a design brief (`templates/design-brief.md`) with the user's own words, files to read, hard constraints and deliverables. **The lead does not write design ideas**; the designer decides and explains its reasoning in the handoff. If the designer runs headless and cannot run commands, the lead exports what it needs (icons, screenshots, the old page's text) into the design folder beforehand.
 
-③ **Direction gate** (new visuals, major redesigns, any "improve the design" request): the designer first writes the **design thinking** at the top of `directions.md` (restate the need, the four form questions, one direction card per direction, an overreach check), then draws thumbnails. The first round delivers only 2–3 directions that genuinely differ, each with about 3 thumbnail screens and 2–3 sentences on trade-offs (`templates/directions.md`). Present them and **stop** until the user picks. Then record the user's exact words in `direction-approved.md` (`templates/direction-approved.md`). Small revisions (rev) skip the gate. When redesigning a page that is **already shipped**, keep its skeleton and information order; directions differ only in visual hierarchy. Details: `references/design-gate.md`.
+③ **Direction gate** (new visuals, major redesigns, any "improve the design" request): the designer first writes the **design thinking** at the top of `directions.md` (restate the need, the four form questions, one direction card per direction, an overreach check), then draws thumbnails. The first round delivers only 2–3 directions that genuinely differ, each with about 3 thumbnail screens and 2–3 sentences on trade-offs (`templates/directions.md`). The lead checks design thinking plus dimensions 0–1 (`references/design-review.md`), presents the options and **stops** until the user picks. Then record the user's exact words in `direction-approved.md` (`templates/direction-approved.md`). Small revisions (rev) skip the gate. When redesigning a page that is **already shipped**, keep its skeleton and information order; directions differ only in visual hierarchy. Details: `references/design-gate.md`.
 
-④ **Full set**: all artboards for the chosen direction plus `handoff.md`. After delivery, run `scripts/design_lint.py <design dir> [--base <previous mockup>] [--source <old code>]`; errors must be 0. Then show the user **one** screenshot of the key artboards.
+④ **Full set**: all artboards for the chosen direction plus `handoff.md`. After delivery, run `scripts/design_lint.py <design dir> [--base <previous mockup>] [--source <old code>]`; errors must be 0. Take **one** screenshot of the key artboards, score the deliverable on the 6-dimension rubric (`references/design-review.md` — state only violated standards and numbers, never invent design fixes), send back for a rev if needed, and show the user once it passes.
 
-⑤ **Brief** (`templates/brief.md`): goal, scope (down to files and line numbers), which existing implementation to copy, key points, what not to do, wrap-up commands. A good brief lets the coder start without exploring the project. See section 5.
+⑤ **Brief** (`templates/brief.md`): goal, scope (down to files and line numbers), which existing implementation to copy, key points, relevant entries from `.agents/MEMORY.md` (`scripts/memory_check.py --match`), what not to do, wrap-up commands. A good brief lets the coder start without exploring the project. See section 5.
 
 ⑥ **Code**: `scope.py start <task>` → `run_role.sh coder -f brief.md` → `scope.py end <task>`. Launch it with the lead agent's own background-task feature (visible in the terminal, notifies on completion) — **never** detach it with `( cmd & )` or nohup. Queue tasks serially; never run two coding tasks in the same working copy at once.
 
-⑦ **Review**: run `scripts/review_diff.py [paths]` first, then read only the flagged lines and the key logic (`references/review-checklist.md`). Focus on: lost content (compare against the **original** version, not an intermediate one), out-of-scope edits, loading/empty/error states, and whether new files were added to version control and the build.
+⑦ **Review**: run `scripts/review_diff.py [paths]` first, then read only the flagged lines and the key logic (`references/review-checklist.md`). Focus on: lost content and error-branch parity (compare against the **original** version, not an intermediate one), out-of-scope edits, loading/empty/error states, and whether new files were added to version control and the build. For data parsing, parameter building, formatting or pagination changes, verify a lightweight unit test / CLI logic check before asking the user to build. Before acceptance on rewritten lists, details or forms, run a worst-case data stress test (`references/ui-stress-test.md`). Recurring bugs found in review should also be fed back into project rules or `.agents/MEMORY.md`.
 
 ⑧ **Acceptance** (`references/runtime-verify.md`): tell the user exactly which page to open; when they reply "opened", take one screenshot, compare it with the design point by point and state the verdict. For anything the user reports, find the root cause before dispatching a fix.
 
-⑨ **Wrap-up**: list the changed files (added/modified/deleted) and their changelist/branch, the rules used, the build result and anything left undone. **The user commits**; the lead never does.
+⑨ **Wrap-up**: list the changed files (added/modified/deleted) and their changelist/branch, the rules used, the build result and anything left undone. Do a quick retrospective: write any new pitfall, user ruling or convention into `.agents/MEMORY.md` and run `scripts/memory_check.py` (`references/memory-and-handover.md`). **The user commits**; the lead never does.
 
 ⑩ **Module doc** (only when the user names a module): after the whole module is accepted, add a PRD-style summary (APIs, business rules, flows, known issues). The lead creates the skeleton, the coder fills it from code only with `file:line` citations, the lead spot-checks. Details: `references/module-doc.md`.
 
@@ -69,18 +78,20 @@ request → ① locate → ② design (optional) → ③ direction gate → ④ 
 
 ## 6. Working discipline
 
-- After every dispatch, tell the user how long it will take.
+- After every dispatch, tell the user how long it will take (based on measured run times).
 - Read only the end of a log (the report), never the full log.
 - Take one screenshot that covers the key area.
 - Report in the user's language: conclusion first, then what the user needs to do.
+- Keep one source of truth for project memory (`.agents/MEMORY.md`, ≤150 lines, tagged bullets); look up past user rulings with `scripts/session_search.py` instead of guessing; prune stale rules/skills periodically with `scripts/memory_check.py --audit-rules`.
 - In long sessions, suggest a new session after each finished request.
+- **Circuit breaker**: if the same stage fails review twice in a row (2 revs or 2 code fix rounds), stop — do not dispatch a 3rd blind retry. Re-investigate the root cause, revert broken edits if needed, or escalate to the user.
 - Before dispatching, skim `references/pitfalls.md`.
 
 ## 7. Swapping models or tools
 
-- Change model: edit `CODER_MODEL` / `DESIGNER_MODEL` (and `*_FALLBACK`) in `config.sh`; no doc changes needed.
+- Change model: edit `CODER_MODEL` / `DESIGNER_MODEL` (and `*_FALLBACK`) in `config.sh`; no doc changes needed. Set `SOP_FORCE_FALLBACK=1` to skip directly to the fallback model when the primary quota is exhausted.
 - Change CLI: edit `CODER_ADAPTER` / `DESIGNER_ADAPTER`; for a new CLI write a ~30-line adapter following `scripts/adapters/README.md`.
-- The lead can be swapped too: any agent that can read files, run scripts and look at images can act as lead using this file.
+- Swap or temporarily hand over the lead: any agent that can read files, run scripts and look at images can act as lead. When the primary lead runs out of quota, run `scripts/takeover_lead.sh` and share `$SOP_HOME/leader-handoff.md` between both leads (`references/memory-and-handover.md`).
 
 ## 8. With only one model
 
@@ -112,8 +123,11 @@ Cost: in mode B the reviewer is the author and is likely to miss its own mistake
 | `scripts/run_role.sh` | Launch the coder or designer; auto-falls back to the next model when quota runs out; `--probe` health check |
 | `scripts/adapters/*.sh` | How to call each CLI and how to recognise its quota errors |
 | `scripts/scope.py` | Snapshot before/after a task; put this task's changes on a changelist (svn) or list them (git) |
-| `scripts/review_diff.py` | Diff pre-review: change counts, untracked new files, debug leftovers, out-of-scope files, pluggable project rules |
+| `scripts/review_diff.py` | Diff pre-review: change counts, untracked new files, debug leftovers, out-of-scope files, pluggable project rules, automatic memory check |
 | `scripts/design_lint.py` | Mockup self-check: anti-template decoration, external assets, dark mode, ease-in, text parity |
+| `scripts/memory_check.py` | Check `.agents/MEMORY.md` (line cap, `[tag]`, near-duplicates, dead paths) and `--match` relevant entries for briefs |
+| `scripts/session_search.py` | Search past local session transcripts without an LLM to verify previous user rulings |
+| `scripts/takeover_lead.sh` | Launch a backup lead CLI with `leader-handoff.md` when the primary lead runs out of quota |
 | `templates/` | Coder brief, design brief, directions (with design thinking), direction approval, report, module doc |
-| `references/` | Direction gate, review checklist, runtime verification, token saving, pitfalls, module doc |
+| `references/` | Direction gate, design review rubric, review checklist, worst-case UI stress test, runtime verification, memory & handover, token saving, pitfalls, module doc |
 | `examples/ios-uikit-swiftui/` | Setup example from a real iOS project |
