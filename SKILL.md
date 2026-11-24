@@ -13,7 +13,7 @@ Chinese version: `SKILL.zh-CN.md`. Templates and references are currently in Chi
 
 | Role | Does | Does not |
 |---|---|---|
-| Lead | Locates code, writes briefs, reviews diffs, runs check scripts, verifies screenshots, talks to the user, tracks progress | Edit product code (docs and tooling scripts are fine); invent design directions for the designer |
+| Lead | Locates code, writes briefs, reviews diffs, runs check scripts, verifies screenshots, talks to the user, tracks progress | Edit product code (fast-lane small fixes may be an exception if the project allows; docs and tooling scripts are fine); invent design directions for the designer |
 | Coder | Edits code per the brief, builds, self-checks, writes a short report | Make design decisions; touch files outside the task scope |
 | Designer | HTML mockups, motion demos, `handoff.md` | Edit product code; write anywhere except the design folder (default `DesignMockups/<task>/`, ideally ignored by version control) |
 
@@ -57,6 +57,8 @@ request → [Fast / Standard / Full] → ① locate → ② design (Full) → �
 
 ⑧ **Acceptance** (`references/runtime-verify.md`): tell the user exactly which page to open; when they reply "opened", take one screenshot, compare it with the design point by point and state the verdict. For anything the user reports, find the root cause before dispatching a fix.
 
+   On acceptance, append a "rounds N · found by" line to the handoff file (see "Prune gates with data" in section 6).
+
 ⑨ **Wrap-up**: list the changed files (added/modified/deleted) and their changelist/branch, the rules used, the build result and anything left undone. Do a quick retrospective: write any new pitfall, user ruling or convention into `.agents/MEMORY.md` and run `scripts/memory_check.py` (`references/memory-and-handover.md`). **The user commits**; the lead never does.
 
 ⑩ **Module doc** (only when the user names a module): after the whole module is accepted, add a PRD-style summary (APIs, business rules, flows, known issues). The lead creates the skeleton, the coder fills it from code only with `file:line` citations, the lead spot-checks. Details: `references/module-doc.md`.
@@ -73,7 +75,7 @@ request → [Fast / Standard / Full] → ① locate → ② design (Full) → �
 - **Give a model to copy**: "follow `X.swift` L52–125" is more precise than ten lines of requirements.
 - **Content parity**: for rewrites and redesigns, require a line-by-line check of displayed text against the original version — nothing added, nothing dropped.
 - **Name only 1–3 relevant rules**; don't paste the whole rulebook.
-- **Small changes skip the build** (the user or lead builds); new files or large changes must build, using a summary script that prints only errors.
+- **Any code change gets one incremental build** (only the changed module, via a summary script that prints only errors); a failing build never goes to the user. The user only checks runtime behaviour — they are not the compiler.
 - **Spell out the wrap-up commands**: check scripts, errors must be 0, report format (≤10 lines + table of changed files + differences from the design).
 
 ## 6. Working discipline
@@ -85,6 +87,9 @@ request → [Fast / Standard / Full] → ① locate → ② design (Full) → �
 - Keep one source of truth for project memory (`.agents/MEMORY.md`, ≤150 lines, tagged bullets); look up past user rulings with `scripts/session_search.py` instead of guessing; prune stale rules/skills periodically with `scripts/memory_check.py --audit-rules`.
 - In long sessions, suggest a new session after each finished request.
 - **Circuit breaker**: if the same stage fails review twice in a row (2 revs or 2 code fix rounds), stop — do not dispatch a 3rd blind retry. Re-investigate the root cause, revert broken edits if needed, or escalate to the user.
+  - **Same behaviour class counts too**: a second bug in the same module and the same kind of behaviour (back / save / refresh / delete …) is round 2 even if it looks like a new task. Before fixing, write a **state table** (each screen × each action → data kept / rolled back / deleted), get the user's OK, and fix all paths at once instead of patching one path at a time.
+- **Prune gates with data**: on every acceptance append `· accepted · rounds N · found by script/diff-review/build/user` to the handoff file (N = dispatches until it passed; found by = who caught each round's problem). Trigger: the user says "done / OK / committed" or starts the next task; write "?" when unsure. After 1–2 weeks, drop gates that never catch anything and reinforce the step that leaks most; **add no new process rules until that data exists**.
+- **Keep it small**: cap AGENTS.md (e.g. 140 lines) and move details into skills/rules when it grows; keep only the last 7 days in the handoff file (`scripts/handoff_rotate.py`); run the rules audit after every milestone.
 - Before dispatching, skim `references/pitfalls.md`.
 
 ## 7. Swapping models or tools
@@ -128,6 +133,7 @@ Cost: in mode B the reviewer is the author and is likely to miss its own mistake
 | `scripts/memory_check.py` | Check `.agents/MEMORY.md` (line cap, `[tag]`, near-duplicates, dead paths) and `--match` relevant entries for briefs |
 | `scripts/session_search.py` | Search past local session transcripts without an LLM to verify previous user rulings |
 | `scripts/takeover_lead.sh` | Launch a backup lead CLI with `leader-handoff.md` when the primary lead runs out of quota |
+| `scripts/handoff_rotate.py` | Keep only the last N days (default 7) in the handoff file and archive the rest; run before taking over as lead |
 | `templates/` | Coder brief, design brief, directions (with design thinking), direction approval, report, module doc |
 | `references/` | Direction gate, design review rubric, review checklist, worst-case UI stress test, runtime verification, memory & handover, token saving, pitfalls, module doc |
 | `examples/ios-uikit-swiftui/` | Setup example from a real iOS project |

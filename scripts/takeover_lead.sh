@@ -53,6 +53,7 @@ SOP_HOME="${SOP_HOME:-$HOME/.cache/lead-coder-designer}"
 HANDOFF="$SOP_HOME/leader-handoff.md"
 mkdir -p "$SOP_HOME"
 [ -f "$HANDOFF" ] || printf '# 主控交接记录\n\n' > "$HANDOFF"
+python3 -I "$(dirname "$0")/handoff_rotate.py" --file "$HANDOFF" >/dev/null 2>&1 || true  # 只留最近 7 天
 
 PROMPT="你现在临时接管本工程（$ROOT）的主控角色（原主控额度不足）。
 1. 先读：AGENTS.md（分工、收尾清单）、.agents/MEMORY.md（项目记忆，如有）、$HANDOFF（交接记录）。

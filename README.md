@@ -28,6 +28,7 @@ The chart is the author's real iOS setup. Labels such as `scope.py`, `review_dif
 | `scripts/memory_check.py` | Check `.agents/MEMORY.md` (line cap, `[tag]`, near-duplicates, dead paths) and `--match` relevant entries into briefs |
 | `scripts/session_search.py` | Search past local session transcripts without an LLM to verify previous user rulings |
 | `scripts/takeover_lead.sh` | Hand over the lead role to a backup CLI via shared `leader-handoff.md` when quota runs out |
+| `scripts/handoff_rotate.py` | Keep only the last 7 days in `leader-handoff.md`, archive the rest (auto-run by `takeover_lead.sh`) |
 | `templates/` | Coder brief, design brief, directions (with design thinking), direction approval, report, module doc |
 | `references/` | Design gate, 6-dimension design review rubric, review checklist, worst-case UI stress test, runtime verification, memory & lead handover, token saving, pitfalls, module doc |
 | `examples/ios-uikit-swiftui/` | A real (redacted) iOS project setup |
@@ -92,6 +93,13 @@ Write `scripts/adapters/<name>.sh` with `ADAPTER_QUOTA_RE` and an `adapter_run <
 
 ## Changelog
 
+### 2026-11-24
+- **Always build before handing over**: any code change gets one incremental build of the changed module; a failing build never reaches the user (replaces "small changes skip the build").
+- **Circuit breaker covers behaviour classes**: a second bug in the same module and the same kind of behaviour (back / save / refresh / delete) counts as round 2 — write a state table (screen × action → keep / roll back / delete), get the user's OK, then fix every path at once.
+- **Prune gates with data**: log `rounds N · found by` on every acceptance; after 1–2 weeks drop gates that never catch anything; no new process rules until the data exists.
+- **Keep the SOP small**: AGENTS.md line cap (move details into skills/rules), rules audit after every milestone, and `scripts/handoff_rotate.py` keeps only the last 7 days of `leader-handoff.md`.
+- Role table: the lead's "no product code edits" now notes the fast-lane exception; two new pitfalls.
+
 ### 2026-11-23
 - **Design review rubric (`references/design-review.md`)**: 6-dimension 1–10 weighted scoring (dim 0 concept veto caps total at 6.0), content-parity hard gate, and "report violations only, no design fixes from lead" boundary.
 - **Worst-case UI stress test (`references/ui-stress-test.md`)**: realistic extreme-data stress test checklist (long names, `<null>`, 0/1/full-page+1, large/negative amounts, long filenames, bad image aspect ratios) before acceptance.
@@ -138,6 +146,13 @@ MIT
 - `SKILL.md` 是英文版，`SKILL.zh-CN.md` 是中文版（想让代理读中文，把它改名为 `SKILL.md`）；模板和参考文档目前是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。
 
 ### 更新记录
+
+#### 2026-11-24
+- **改了代码就编译**：任何代码改动都先增量编译改动模块一次，编译失败不交给用户（取代「小改动不编译」）。
+- **熔断覆盖同类行为**：同一模块同一类行为（返回 / 保存 / 刷新 / 删除）第二次出 bug 就算第 2 轮——先出状态表（页面 × 操作 → 保留 / 回滚 / 删除），用户确认后一次修全。
+- **用数据删关卡**：每次验收记「轮次 N · 发现者」，攒 1–2 周后删掉从不拦截的关卡；攒够数据前不新增流程规则。
+- **控制 SOP 体量**：AGENTS.md 设行数上限（细节挪进 skill / 规则）、每个里程碑后审计规则、`scripts/handoff_rotate.py` 让交接文件只留最近 7 天。
+- 分工表注明主控「不改业务代码」的快车道例外；踩坑表新增 2 条。
 
 #### 2026-11-23
 - **界面设计 6 维打分表（`references/design-review.md`）**：方向稿审设计思路与 0/1 维，完整稿 / rev 按 6 维 1–10 分加权打分（0 维立意 ≤5 封顶 6 分）、内容一致性一票打回，主控只指标准与数值不出设计方案。

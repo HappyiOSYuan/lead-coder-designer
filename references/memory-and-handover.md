@@ -50,8 +50,13 @@ python3 -I scripts/session_search.py --session <sid> --around 12  # 查看命中
    scripts/takeover_lead.sh          # 启动备选主控并自动读 AGENTS.md + MEMORY.md + leader-handoff.md
    scripts/takeover_lead.sh -c       # 继续上一次接管会话
    ```
-4. **原主控恢复**：先读 `leader-handoff.md` 末尾新增的记录再继续，避免重复派发或漏掉待确认项。
-5. **交接底线**：接管主控严格遵守同一套 `AGENTS.md` 分工边界——同样不直接改业务代码、不提交版本库。
+4. **原主控恢复**：先跑 `python3 -I scripts/handoff_rotate.py`（只留最近 7 天，旧记录归档到同目录 `leader-handoff-archive.md`；`takeover_lead.sh` 启动时自动跑），再读 `leader-handoff.md` 末尾新增的记录继续，避免重复派发或漏掉待确认项。
+5. **验收行**：每个任务验收时补一行，供以后按数据删关卡（见 `SKILL.md` 第 6 节）：
+   ```markdown
+   - 2026-11-24 [Lead-A] 登录页修复 · 验收 · 轮次 2 · 发现者 编译/用户
+   ```
+   轮次 = 派了几次才通过；发现者 = 每轮问题最后由谁发现（脚本 / 审diff / 编译 / 用户）。用户说「好了 / 可以 / 提交了」或开始下一个任务时就补，拿不准写「?」。
+6. **交接底线**：接管主控严格遵守同一套 `AGENTS.md` 分工边界——同样不直接改业务代码、不提交版本库。
 
 ---
 
@@ -59,7 +64,7 @@ python3 -I scripts/session_search.py --session <sid> --around 12  # 查看命中
 
 规则、技能和脚本同样是代码，会随架构演进而腐化；只增不减会稀释注意力、拖慢检索并引发误报。
 
-- **触发时机**：完成一个大里程碑（如旧框架/旧语言迁移收尾）或每隔 1–3 个月跑一次审计：
+- **触发时机**：每完成一个里程碑（如一个模块交付、旧框架/旧语言迁移收尾）跑一次审计：
   ```bash
   python3 -I scripts/memory_check.py --audit-rules .cursor/rules .cursor/skills --stale-days 90
   ```
@@ -67,4 +72,6 @@ python3 -I scripts/session_search.py --session <sid> --around 12  # 查看命中
   1. **已退出架构的规则**：旧语言/旧库已彻底下线后，及时归档或删除对应规则和辅助脚本。
   2. **已被静态 lint 接管的规则**：能用 `review_diff.py --rules` 机械拦截的条目，不要在文字规则里重复写大段说明，缩成一句索引。
   3. **失效路径与过长文件**：引用的类/文件已删除、或单篇超过 300 行的规则文件，按需裁剪或合并。
+- **AGENTS.md 设上限**（如 140 行）：它每个代理每次都读，成本按次累加；超了就把细节挪进对应 skill / 规则，AGENTS.md 只留索引。
+- **关卡也要清理**：按交接文件里的验收行统计，长期从不拦截问题的检查脚本或审查步骤，交用户确认后删掉；攒够数据前不新增流程规则。
 - **执行底线**：清理清单由主控整理后交用户确认，确认后再删，不私自大面积删除规则。
