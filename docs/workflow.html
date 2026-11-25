@@ -135,6 +135,10 @@
   .board .support-copy { fill: var(--muted); font-size: 11px; }
   .board .skill-line-name { fill: var(--primary-strong); font-size: 10px; font-weight: 800; }
   .board .skill-line { fill: var(--muted); font-size: 10px; }
+  .board .limits { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+  .board .limits-title { fill: var(--warn); font-size: 18px; font-weight: 800; }
+  .board .limits-card { fill: var(--surface); stroke: var(--warn); stroke-width: 1.2; }
+  .board .limits-group { fill: var(--warn); font-size: 11px; font-weight: 800; }
   .board .rule-group { fill: var(--primary-strong); font-size: 11px; font-weight: 800; }
   .board .rule-list { fill: var(--muted); font-size: 9.5px; }
   .board .audit-badge { fill: var(--primary-soft); stroke: var(--primary); stroke-width: 1; }
@@ -160,7 +164,7 @@
 </header>
 
 <main class="scroll-shell" aria-label="可横向滚动的协作流程图">
-  <svg class="board" viewBox="0 0 1500 3086" role="img" aria-labelledby="diagram-title diagram-desc">
+  <svg class="board" viewBox="0 0 1500 3424" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">用户、大脑AI、设计AI、代码AI 的协作流程</title>
     <desc id="diagram-desc">四条纵向泳道：草稿图整理、设计AI 出稿与审稿打分、方向确认、代码AI 开发与审 diff、模拟器验收与压测、提交复盘，以及专项工具和共享规则层。</desc>
 
@@ -173,7 +177,7 @@
       <marker id="arrow-neutral" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--muted)"/></marker>
     </defs>
 
-    <rect class="board-bg" x="1" y="1" width="1498" height="3084" rx="22"/>
+    <rect class="board-bg" x="1" y="1" width="1498" height="3422" rx="22"/>
 
     <!-- Four role lanes -->
     <g aria-label="用户泳道">
@@ -566,6 +570,35 @@
       <text class="shared-copy" x="1022" y="2928">一个需求一个会话，历史口径用 session_search</text>
       <text class="shared-copy" x="1022" y="2948">连续 2 轮被打回立即熔断，重查根因或升级问用户</text>
       <text class="shared-copy" x="1022" y="2982">.agents/MEMORY.md 唯一记忆 · leader-handoff.md 主控交接</text>
+    </g>
+
+    <!-- Limits & costs -->
+    <g aria-label="适用边界与代价">
+      <rect class="limits" x="24" y="3080" width="1452" height="320" rx="15"/>
+      <text class="limits-title" x="48" y="3116">适用边界与代价</text>
+      <rect class="limits-card" x="48" y="3134" width="452" height="232" rx="12"/>
+      <text class="shared-label" x="70" y="3163">适合 / 不适合</text>
+      <text class="limits-group" x="70" y="3192">适合</text>
+      <text class="shared-copy" x="70" y="3214">有界面、要人验收的产品迭代</text>
+      <text class="shared-copy" x="70" y="3236">改动进版本库、有人长期维护</text>
+      <text class="limits-group" x="70" y="3266">不适合（直接做，或只走快车道）</text>
+      <text class="shared-copy" x="70" y="3288">一次性脚本、临时排查、原型试错</text>
+      <text class="shared-copy" x="70" y="3310">没有 git/svn 的目录（脚本算不出改动范围）</text>
+      <text class="shared-copy" x="70" y="3332">没人能编译、上设备验收</text>
+      <rect class="limits-card" x="516" y="3134" width="468" height="232" rx="12"/>
+      <text class="shared-label" x="538" y="3163">代价</text>
+      <text class="shared-copy" x="538" y="3192">慢：重装道要停下等用户两次（方向门、验收）</text>
+      <text class="shared-copy" x="538" y="3214">费 token：每次调起角色都是新会话，重读任务书和代码</text>
+      <text class="shared-copy" x="538" y="3236">接入：装 CLI、登录、探活，维护 config.sh 和适配器</text>
+      <text class="shared-copy" x="538" y="3258">用户全程参与：选方向、编译、验收、提交</text>
+      <text class="shared-copy" x="538" y="3280">规则越积越多：靠行数上限 + --audit-rules 控制</text>
+      <rect class="limits-card" x="1000" y="3134" width="452" height="232" rx="12"/>
+      <text class="shared-label" x="1022" y="3163">局限（流程管不到的）</text>
+      <text class="shared-copy" x="1022" y="3192">脚本只做静态检查，看不出业务逻辑写错</text>
+      <text class="shared-copy" x="1022" y="3214">截图只覆盖看到的屏和数据，压测补不全</text>
+      <text class="shared-copy" x="1022" y="3236">结果上限 = 任务书质量 + 主控审得严不严</text>
+      <text class="shared-copy" x="1022" y="3258">单会话模式 B 自己审自己，独立性最弱</text>
+      <text class="shared-copy" x="48" y="3388">详见 SKILL.zh-CN.md §9 适用边界与代价</text>
     </g>
   </svg>
 </main>

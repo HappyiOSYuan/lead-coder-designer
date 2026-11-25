@@ -87,6 +87,16 @@ Without a CLI, what you get depends on where the lead runs:
 | A coding agent that can read/write files and run commands (Claude Code, Cursor, Codex …) | Everything works; the scripts only need Python and git/svn |
 | Web chat with no file access | Process only (direction gate, brief template, review checklist); checks are done by hand |
 
+## Limitations and costs
+
+- **Not for everything**: skip it for one-off scripts, quick investigations, prototypes, folders without git/svn, or when nobody can build and accept on a device.
+- **Slower and more tokens** than one agent editing directly: the full lane waits on the user twice, and each role call is a fresh session that re-reads the brief and code.
+- **Setup and upkeep**: CLIs to install, log in and probe; `config.sh`, `AGENTS.md` and adapters to maintain.
+- **The user stays in the loop**: directions, builds, acceptance and commits are theirs.
+- **Static checks only**: scripts and screenshots don't prove business logic is right; output is only as good as the brief and the review.
+
+Details: `SKILL.md` §9.
+
 ## Adding a CLI
 
 Write `scripts/adapters/<name>.sh` with `ADAPTER_QUOTA_RE` and an `adapter_run <model> <workdir> <extra_dir> <prompt>` function (~20 lines; see `scripts/adapters/README.md`), set `CODER_ADAPTER=<name>`, run `--probe`.
@@ -99,6 +109,7 @@ Write `scripts/adapters/<name>.sh` with `ADAPTER_QUOTA_RE` and an `adapter_run <
 - **Prune gates with data**: log `rounds N · found by` on every acceptance; after 1–2 weeks drop gates that never catch anything; no new process rules until the data exists.
 - **Keep the SOP small**: AGENTS.md line cap (move details into skills/rules), rules audit after every milestone, and `scripts/handoff_rotate.py` keeps only the last 7 days of `leader-handoff.md`.
 - Role table: the lead's "no product code edits" now notes the fast-lane exception; two new pitfalls.
+- **Where it fits, and what it costs**: new `SKILL.md` §9 (good/poor fit, costs, limits), a Limitations section here, and a matching band at the bottom of the workflow chart.
 
 ### 2026-11-23
 - **Design review rubric (`references/design-review.md`)**: 6-dimension 1–10 weighted scoring (dim 0 concept veto caps total at 6.0), content-parity hard gate, and "report violations only, no design fixes from lead" boundary.
@@ -143,6 +154,12 @@ MIT
   ![三 AI 协作流程](docs/workflow.png)
 
   交互版 https://happyiosyuan.github.io/lead-coder-designer/workflow.html 。图里 `gf_*` 开头的是作者 iOS 项目自己的辅助脚本，仅作示例。
+- **边界与代价**（详见 `SKILL.zh-CN.md` §9）：
+  - 不适合一次性脚本、临时排查、原型验证、没有 git/svn 的目录，以及没人能编译、上设备验收的场景；
+  - 比单代理直接改更慢、更费 token：重装道要等用户两次，每次调起角色都是新会话，要重读任务书和代码；
+  - 有接入和维护成本：装 CLI、登录、探活，维护 `config.sh`、`AGENTS.md` 和适配器；
+  - 用户要全程参与：选方向、编译、验收、提交都在用户手里；
+  - 脚本和截图只是静态检查，证明不了业务逻辑对；结果上限取决于任务书和审查质量。
 - `SKILL.md` 是英文版，`SKILL.zh-CN.md` 是中文版（想让代理读中文，把它改名为 `SKILL.md`）；模板和参考文档目前是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。
 
 ### 更新记录
@@ -153,6 +170,7 @@ MIT
 - **用数据删关卡**：每次验收记「轮次 N · 发现者」，攒 1–2 周后删掉从不拦截的关卡；攒够数据前不新增流程规则。
 - **控制 SOP 体量**：AGENTS.md 设行数上限（细节挪进 skill / 规则）、每个里程碑后审计规则、`scripts/handoff_rotate.py` 让交接文件只留最近 7 天。
 - 分工表注明主控「不改业务代码」的快车道例外；踩坑表新增 2 条。
+- **适用边界与代价**：`SKILL.zh-CN.md` 新增 §9（适合/不适合、代价、局限），README 补对应小节，流程图底部加同名区块。
 
 #### 2026-11-23
 - **界面设计 6 维打分表（`references/design-review.md`）**：方向稿审设计思路与 0/1 维，完整稿 / rev 按 6 维 1–10 分加权打分（0 维立意 ≤5 封顶 6 分）、内容一致性一票打回，主控只指标准与数值不出设计方案。

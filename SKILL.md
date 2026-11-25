@@ -120,6 +120,29 @@ Cost: in mode B the reviewer is the author and is likely to miss its own mistake
 | A coding agent that can read/write files and run commands (Claude Code, Cursor, Codex …) | Everything works: `scope.py`, `review_diff.py` and `design_lint.py` need only Python and git/svn |
 | Web chat with no file access | Process only (direction gate, brief template, review checklist); scripts can't run, checks are done by hand |
 
+## 9. Where it fits, and what it costs
+
+**Good fit**: product work with a UI that someone accepts by hand (app / web pages, forms, lists, redesigns); changes that go into version control and get maintained; a user willing to spend time at the direction gate and at acceptance.
+
+**Poor fit** (just do it, or use the fast lane only):
+- One-off scripts, data processing, quick investigations: no direction to choose, nobody to accept.
+- Folders without version control: `scope.py` and `review_diff.py` rely on git/svn to find the change set; without it only the manual checklist is left.
+- Pure exploration or prototypes: speed matters more, and three gates multiply the cost of each try.
+- A user who can't build or can't look at a device: step ⑧ can't happen, so half the process is gone.
+
+**Costs**:
+- **Slower**: the full lane stops at least twice for the user (direction gate, acceptance); brief, review and wrap-up are extra steps. Even a fast-lane fix needs locating plus `review_diff.py`.
+- **More tokens**: every coder/designer call is a fresh session that re-reads the brief and the relevant code; the lead's diff review and screenshot checks add more. `references/token-saving.md` reduces this, but not to the level of one agent editing directly.
+- **Setup and upkeep**: multi-CLI mode means installing, logging in and probing each CLI, filling `config.sh`, and writing `AGENTS.md`; quotas, CLI upgrades and changed error formats mean maintaining the adapters.
+- **The user has to take part**: picking directions, building (per project convention), on-device acceptance and committing are all the user's; when the user is away, work stops.
+- **Rules pile up**: every mistake tempts a new rule and the SOP gets heavier. Keep it in check with the AGENTS.md line cap, `memory_check.py --audit-rules`, and pruning gates by data.
+
+**Limits** (what the process can't catch):
+- The scripts are static checks (stats, leftovers, out-of-scope files, mockup rules); they can't tell that business logic is wrong.
+- Screenshot acceptance covers only the screens and data you looked at; worst-case data stress tests cover some of the rest, not all.
+- Results are capped by the quality of the brief and the strictness of the lead's review; a wrong brief gets implemented faithfully.
+- Single-session mode B reviews its own work (see §8), the weakest form of independence.
+
 ## File index
 
 | Path | Purpose |

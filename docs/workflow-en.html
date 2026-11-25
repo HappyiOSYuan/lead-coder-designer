@@ -134,6 +134,10 @@
   .board .support-copy { fill: var(--muted); font-size: 11px; }
   .board .skill-line-name { fill: var(--primary-strong); font-size: 10px; font-weight: 800; }
   .board .skill-line { fill: var(--muted); font-size: 10px; }
+  .board .limits { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+  .board .limits-title { fill: var(--warn); font-size: 18px; font-weight: 800; }
+  .board .limits-card { fill: var(--surface); stroke: var(--warn); stroke-width: 1.2; }
+  .board .limits-group { fill: var(--warn); font-size: 11px; font-weight: 800; }
   .board .rule-group { fill: var(--primary-strong); font-size: 11px; font-weight: 800; }
   .board .rule-list { fill: var(--muted); font-size: 9.5px; }
   .board .audit-badge { fill: var(--primary-soft); stroke: var(--primary); stroke-width: 1; }
@@ -159,7 +163,7 @@
 </header>
 
 <main class="scroll-shell" aria-label="Horizontally scrollable workflow chart">
-  <svg class="board" viewBox="0 0 1500 3086" role="img" aria-labelledby="diagram-title diagram-desc">
+  <svg class="board" viewBox="0 0 1500 3424" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">How the user, Lead AI, Designer AI and Coder AI work together</title>
     <desc id="diagram-desc">Four vertical lanes: sketch intake, Designer AI drafts and scored review, direction pick, Coder AI build and diff review, simulator acceptance and stress test, commit and retrospective, plus utility tools and a shared rules layer.</desc>
 
@@ -172,7 +176,7 @@
       <marker id="arrow-neutral" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--muted)"/></marker>
     </defs>
 
-    <rect class="board-bg" x="1" y="1" width="1498" height="3084" rx="22"/>
+    <rect class="board-bg" x="1" y="1" width="1498" height="3422" rx="22"/>
 
     <!-- Four role lanes -->
     <g aria-label="User lane">
@@ -567,6 +571,35 @@
       <text class="shared-copy" x="1022" y="2928">One session per request; lookup via session_search</text>
       <text class="shared-copy" x="1022" y="2948">Circuit breaker: 2 failed rounds → stop &amp; re-root-cause</text>
       <text class="shared-copy" x="1022" y="2982">.agents/MEMORY.md single source · leader-handoff.md handover</text>
+    </g>
+
+    <!-- Limits & costs -->
+    <g aria-label="Where it fits and what it costs">
+      <rect class="limits" x="24" y="3080" width="1452" height="320" rx="15"/>
+      <text class="limits-title" x="48" y="3116">Where it fits &amp; what it costs</text>
+      <rect class="limits-card" x="48" y="3134" width="452" height="232" rx="12"/>
+      <text class="shared-label" x="70" y="3163">Good fit / poor fit</text>
+      <text class="limits-group" x="70" y="3192">Good fit</text>
+      <text class="shared-copy" x="70" y="3214">UI product work that a person accepts by hand</text>
+      <text class="shared-copy" x="70" y="3236">Changes that go into version control and get maintained</text>
+      <text class="limits-group" x="70" y="3266">Poor fit (just do it, or fast lane only)</text>
+      <text class="shared-copy" x="70" y="3288">One-off scripts, quick investigations, prototypes</text>
+      <text class="shared-copy" x="70" y="3310">No git/svn (scripts can't find the change set)</text>
+      <text class="shared-copy" x="70" y="3332">Nobody can build and accept on a device</text>
+      <rect class="limits-card" x="516" y="3134" width="468" height="232" rx="12"/>
+      <text class="shared-label" x="538" y="3163">Costs</text>
+      <text class="shared-copy" x="538" y="3192">Slower: full lane waits on the user twice (gate, acceptance)</text>
+      <text class="shared-copy" x="538" y="3214">More tokens: each role call is a fresh session re-reading code</text>
+      <text class="shared-copy" x="538" y="3236">Setup: install, log in, probe CLIs; maintain config.sh, adapters</text>
+      <text class="shared-copy" x="538" y="3258">User in the loop: directions, builds, acceptance, commits</text>
+      <text class="shared-copy" x="538" y="3280">Rules pile up: keep in check with line caps + --audit-rules</text>
+      <rect class="limits-card" x="1000" y="3134" width="452" height="232" rx="12"/>
+      <text class="shared-label" x="1022" y="3163">Limits (what the process can't catch)</text>
+      <text class="shared-copy" x="1022" y="3192">Scripts are static checks; wrong business logic slips by</text>
+      <text class="shared-copy" x="1022" y="3214">Screenshots cover only what you looked at</text>
+      <text class="shared-copy" x="1022" y="3236">Output is capped by the brief and the strictness of review</text>
+      <text class="shared-copy" x="1022" y="3258">Single-session mode B reviews its own work</text>
+      <text class="shared-copy" x="48" y="3388">Details: SKILL.md §9 Where it fits, and what it costs</text>
     </g>
   </svg>
 </main>
