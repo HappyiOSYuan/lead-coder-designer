@@ -87,6 +87,26 @@ Without a CLI, what you get depends on where the lead runs:
 | A coding agent that can read/write files and run commands (Claude Code, Cursor, Codex …) | Everything works; the scripts only need Python and git/svn |
 | Web chat with no file access | Process only (direction gate, brief template, review checklist); checks are done by hand |
 
+## Pros and cons
+
+**Pros**
+- **Author and reviewer stay separate**: the coder runs in a fresh session that sees only the brief; the lead reviews the diff without the coder's context, and an unclear brief shows up at once.
+- **The user picks the direction first**: new visuals and redesigns start with 2–3 directions; the full mockup comes only after the user chooses.
+- **Fast / Standard / Full lanes**: small fixes skip the ceremony, refactors skip design, only redesigns take the full flow.
+- **No model lock-in**: roles live in `config.sh`; swap a model in one line, add a CLI with a ~20-line adapter; quota errors fall back automatically, and `takeover_lead.sh` hands the lead role to another agent.
+- **Scripts as a safety net**: `scope.py`, `review_diff.py` and `design_lint.py` catch out-of-scope edits, debug leftovers, unversioned files and mockup rule breaks.
+- **Bounded failure**: two rejected rounds on the same problem trip the circuit breaker (re-find the root cause or ask the user).
+- **Lessons stick**: pitfalls go into `.agents/MEMORY.md` and project rules, and the relevant ones are copied into the next brief.
+- **Works with one model**: separate sessions, sub-agents, or one session playing all roles, gates kept.
+
+**Cons**
+- Slower and more tokens than one agent editing directly.
+- Setup and upkeep (CLIs, `config.sh`, `AGENTS.md`, adapters).
+- Needs the user for directions, builds, acceptance and commits.
+- Rules tend to pile up and need regular pruning.
+- Static checks only; the result is capped by the brief and the review. Mode B reviews its own work.
+- Overkill for one-off scripts, quick investigations, prototypes or unversioned folders.
+
 ## Limitations and costs
 
 - **Not for everything**: skip it for one-off scripts, quick investigations, prototypes, folders without git/svn, or when nobody can build and accept on a device.
@@ -96,6 +116,26 @@ Without a CLI, what you get depends on where the lead runs:
 - **Static checks only**: scripts and screenshots don't prove business logic is right; output is only as good as the brief and the review.
 
 Details: `SKILL.md` §9.
+
+## Saving tokens
+
+**Before dispatch**
+1. **Locate before you dispatch**: put file paths and line numbers in the brief so the coder doesn't wander the project.
+2. **Big searches go to scripts**: references, call sites, unused assets → a script prints a summary (counts, `path:line`), full output to a file.
+3. **Name only 1–3 rules** per brief; copy only matching memory with `memory_check.py --match`.
+4. **Read only the relevant lines** of large files.
+
+**Running and accepting**
+5. **Logs: tail only** — the role's report is at the end.
+6. **One screenshot per check**, covering the key area, scaled down if needed.
+7. **Build output as a summary**: errors and new warnings only.
+8. **Cap design deliverables**: every extra variant, notes panel or device frame costs thousands of tokens.
+
+**Sessions and doc size**
+9. **One request, one session**; look up past user rulings with `session_search.py` (no LLM) instead of reloading long chats.
+10. **Keep always-read docs small**: cap `AGENTS.md` lines (move details into skills/rules); `handoff_rotate.py` keeps only 7 days of `leader-handoff.md`.
+
+Details: `references/token-saving.md`.
 
 ## Adding a CLI
 
@@ -110,6 +150,7 @@ Write `scripts/adapters/<name>.sh` with `ADAPTER_QUOTA_RE` and an `adapter_run <
 - **Keep the SOP small**: AGENTS.md line cap (move details into skills/rules), rules audit after every milestone, and `scripts/handoff_rotate.py` keeps only the last 7 days of `leader-handoff.md`.
 - Role table: the lead's "no product code edits" now notes the fast-lane exception; two new pitfalls.
 - **Where it fits, and what it costs**: new `SKILL.md` §9 (good/poor fit, costs, limits), a Limitations section here, and a matching band at the bottom of the workflow chart.
+- **Pros and cons, saving tokens**: two new README sections; `references/token-saving.md` now says "build on every code change, read only the summary" (was "small changes skip the build").
 
 ### 2026-11-23
 - **Design review rubric (`references/design-review.md`)**: 6-dimension 1–10 weighted scoring (dim 0 concept veto caps total at 6.0), content-parity hard gate, and "report violations only, no design fixes from lead" boundary.
@@ -154,12 +195,32 @@ MIT
   ![三 AI 协作流程](docs/workflow.png)
 
   交互版 https://happyiosyuan.github.io/lead-coder-designer/workflow.html 。图里 `gf_*` 开头的是作者 iOS 项目自己的辅助脚本，仅作示例。
+- **优点**：
+  - 写的和审的分开：编码角色每次是只看任务书的新会话，主控审 diff 不带编码上下文，任务书不清楚会立刻暴露；
+  - 方向先由用户定：新视觉、大改版先出 2–3 个方向，用户选完才出完整稿；
+  - 快 / 标准 / 重装三条车道，小修不走全套，只有大改版走完整流程；
+  - 模型不锁死：换模型改 `config.sh` 一行，换 CLI 加约 20 行适配器；额度用完自动换备用模型，主控可用 `takeover_lead.sh` 交接；
+  - 脚本兜底：`scope.py`、`review_diff.py`、`design_lint.py` 查越界改动、调试残留、新文件未入库、设计稿违规；
+  - 出错有上限：同一问题连续 2 轮被打回就熔断，重查根因或问用户；
+  - 经验能沉淀：踩坑写进 `.agents/MEMORY.md` 和项目规则，派任务时抄相关几条；
+  - 一个模型也能用（分开会话 / 子代理 / 单会话三角色），关卡都保留。
+- **缺点**：
+  - 比单代理直接改更慢、更费 token；
+  - 有接入和维护成本（CLI、`config.sh`、`AGENTS.md`、适配器）；
+  - 离不开用户：选方向、编译、验收、提交都要用户做；
+  - 规则容易越积越多，要定期审计删减；
+  - 只能查静态问题，结果上限取决于任务书和审查质量；单会话模式 B 是自己审自己；
+  - 一次性脚本、临时排查、原型、无版本库的目录用它是负担。
 - **边界与代价**（详见 `SKILL.zh-CN.md` §9）：
   - 不适合一次性脚本、临时排查、原型验证、没有 git/svn 的目录，以及没人能编译、上设备验收的场景；
   - 比单代理直接改更慢、更费 token：重装道要等用户两次，每次调起角色都是新会话，要重读任务书和代码；
   - 有接入和维护成本：装 CLI、登录、探活，维护 `config.sh`、`AGENTS.md` 和适配器；
   - 用户要全程参与：选方向、编译、验收、提交都在用户手里；
   - 脚本和截图只是静态检查，证明不了业务逻辑对；结果上限取决于任务书和审查质量。
+- **省 token 的办法**（详见 `references/token-saving.md`）：
+  - 派任务前：主控先定位到文件:行号再写进任务书；大搜索交给脚本输出摘要（计数、路径:行号），完整结果写文件；规则只点 1–3 条，记忆用 `memory_check.py --match` 只抄相关的；大文件只读相关行段；
+  - 执行与验收：日志只看结尾；一次验收只截一张图；编译只看摘要（只输出错误和新增警告）；控制设计交付物数量（每多一个变体、说明面板、手机画板都要多花成千上万 token）；
+  - 会话与文档体量：一个需求一个会话，查过往口径用 `session_search.py`（不调大模型）；AGENTS.md 设行数上限、细节挪进 skill / 规则，`handoff_rotate.py` 让交接文件只留最近 7 天。
 - `SKILL.md` 是英文版，`SKILL.zh-CN.md` 是中文版（想让代理读中文，把它改名为 `SKILL.md`）；模板和参考文档目前是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。
 
 ### 更新记录
@@ -171,6 +232,7 @@ MIT
 - **控制 SOP 体量**：AGENTS.md 设行数上限（细节挪进 skill / 规则）、每个里程碑后审计规则、`scripts/handoff_rotate.py` 让交接文件只留最近 7 天。
 - 分工表注明主控「不改业务代码」的快车道例外；踩坑表新增 2 条。
 - **适用边界与代价**：`SKILL.zh-CN.md` 新增 §9（适合/不适合、代价、局限），README 补对应小节，流程图底部加同名区块。
+- **优缺点、省 token**：README 新增两部分；`references/token-saving.md` 第 4 条改为「改了代码就编译，只看汇总」（原为「小改动不编译」）。
 
 #### 2026-11-23
 - **界面设计 6 维打分表（`references/design-review.md`）**：方向稿审设计思路与 0/1 维，完整稿 / rev 按 6 维 1–10 分加权打分（0 维立意 ≤5 封顶 6 分）、内容一致性一票打回，主控只指标准与数值不出设计方案。
