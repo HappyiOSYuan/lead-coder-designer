@@ -27,6 +27,7 @@ The chart is the author's real iOS setup. Labels such as `scope.py`, `review_dif
 | `scripts/design_lint.py` | Mockup lint: anti-template decoration, external assets, ease-in, content parity vs. old mockup / old source strings |
 | `scripts/memory_check.py` | Check `.agents/MEMORY.md` (line cap, `[tag]`, near-duplicates, dead paths) and `--match` relevant entries into briefs |
 | `scripts/session_search.py` | Search past local session transcripts without an LLM to verify previous user rulings |
+| `scripts/gate_report.py` | Gate diagnosis without an LLM: `stats` over acceptance lines (rounds, which gate caught what, gates that never catch anything); `session` lists skipped gates, leaks and breaker violations in a lead transcript with `session#index` evidence |
 | `scripts/takeover_lead.sh` | Hand over the lead role to a backup CLI via shared `leader-handoff.md` when quota runs out |
 | `scripts/handoff_rotate.py` | Keep only the last 7 days in `leader-handoff.md`, archive the rest (auto-run by `takeover_lead.sh`) |
 | `templates/` | Coder brief, design brief, directions (with design thinking), direction approval, report, module doc |
@@ -143,6 +144,12 @@ Write `scripts/adapters/<name>.sh` with `ADAPTER_QUOTA_RE` and an `adapter_run <
 
 ## Changelog
 
+### 2026-11-25
+- **Gate diagnosis (`scripts/gate_report.py`)**, inspired by superpowers' `diagnosing-superpowers` but script-only (no LLM):
+  - `stats` reads the `rounds N · found by` acceptance lines: average rounds, first-pass rate, catches per gate, gates that never caught anything, share reaching the user — the data behind "prune gates with data".
+  - `session [id]` reads a Claude Code lead transcript, splits it into rounds (dispatch → completion notice → the user's next message) and reports skipped gates, leaks (user rejections plus the gates that ran and missed) and circuit-breaker violations, each with `session#index` for `session_search.py --around`. Recognises prefixed project scripts (`gf_review_diff.py`), project dispatch wrappers (`--coder-re` / `--designer-re`), checks the brief tells the executor to run, and check summaries in dispatch logs.
+  - `SKILL.md` §6 and `references/memory-and-handover.md` §5 say when to run it.
+
 ### 2026-11-24
 - **Always build before handing over**: any code change gets one incremental build of the changed module; a failing build never reaches the user (replaces "small changes skip the build").
 - **Circuit breaker covers behaviour classes**: a second bug in the same module and the same kind of behaviour (back / save / refresh / delete) counts as round 2 — write a state table (screen × action → keep / roll back / delete), get the user's OK, then fix every path at once.
@@ -183,7 +190,7 @@ MIT
 一套**模型不锁死**的多代理协作 SOP：一个主控代理带编码、设计两个执行代理做真实需求。主控定位代码、写任务书、审 diff、上设备验收；编码改代码；设计出 HTML 设计稿；用户选设计方向、做最终验收。
 
 - 谁来演哪个角色、用什么模型，都在 `config.sh` 一个文件里；换模型改一行，换 CLI 加一个约 20 行的适配器。主控额度耗尽时也可用 `scripts/takeover_lead.sh` + 共用 `leader-handoff.md` 平滑接管。
-- 内置**轻/中/重三级分流**（小修直走快车道、重构跳过设计、大改版走完整方向门）、设计稿 6 维打分表（`references/design-review.md`）、动态逻辑自检与最坏数据 UI 压测（`references/ui-stress-test.md`），以及 `.agents/MEMORY.md` 唯一项目记忆体检、规则清理审计（`--audit-rules`）与历史会话检索（`scripts/memory_check.py`、`scripts/session_search.py`）。
+- 内置**轻/中/重三级分流**（小修直走快车道、重构跳过设计、大改版走完整方向门）、设计稿 6 维打分表（`references/design-review.md`）、动态逻辑自检与最坏数据 UI 压测（`references/ui-stress-test.md`），以及 `.agents/MEMORY.md` 唯一项目记忆体检、规则清理审计（`--audit-rules`）与历史会话检索（`scripts/memory_check.py`、`scripts/session_search.py`），以及无 LLM 关卡诊断（`scripts/gate_report.py`：哪道关卡在拦、哪道在漏、哪道没跑）。
 - **单个模型也能用**，三种方式：
   - 编码和设计填同一个 CLI/模型，分开会话（推荐）；
   - 主控代理能起子代理时（如 Claude Code 的 Agent 工具），把任务书交给子代理，**不需要 CLI 和 config.sh**，上下文同样是分开的；
@@ -224,6 +231,12 @@ MIT
 - `SKILL.md` 是英文版，`SKILL.zh-CN.md` 是中文版（想让代理读中文，把它改名为 `SKILL.md`）；模板和参考文档目前是中文；`examples/ios-uikit-swiftui/` 是一个真实 iOS 项目（已脱敏）的接入示例。
 
 ### 更新记录
+
+#### 2026-11-25
+- **关卡诊断（`scripts/gate_report.py`）**：借鉴 superpowers 的 `diagnosing-superpowers`，但只用脚本、不调大模型：
+  - `stats` 读交接文件里的「轮次 N · 发现者」验收行：平均轮次、一次通过率、每道关卡拦下几次、从没拦过的关卡、漏到用户的占比——「用数据删关卡」的数据来源。
+  - `session [会话ID]` 读 Claude Code 主控会话，按「派发 → 完成通知 → 用户下一条消息」切轮次，列出跳过的关卡、漏网问题（用户打回 + 这一轮跑过却没拦住的关卡）和熔断失效，每条带 `会话ID#序号`，可接 `session_search.py --around` 看原文。认得带项目前缀的脚本（`gf_review_diff.py`）、项目自己的派发脚本（`--coder-re` / `--designer-re`）、任务书里交给执行方跑的检查，以及派发日志里的检查摘要。
+  - `SKILL.zh-CN.md` 第 6 节与 `references/memory-and-handover.md` 第 5 节写明什么时候跑。
 
 #### 2026-11-24
 - **改了代码就编译**：任何代码改动都先增量编译改动模块一次，编译失败不交给用户（取代「小改动不编译」）。
